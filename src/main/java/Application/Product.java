@@ -17,14 +17,6 @@ public class Product {
         this.quantity = quantity;
     }
 
-    public boolean isInStock() {
-        return inStock;
-    }
-
-    public void setInStock(boolean inStock) {
-        this.inStock = inStock;
-    }
-
     public String getName() {
         return name;
     }
