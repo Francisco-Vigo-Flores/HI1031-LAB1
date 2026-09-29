@@ -3,16 +3,18 @@ package Application;
 import java.util.UUID;
 
 public class Product {
-    private UUID id;
+    private int id;
     private final String name;
     private final double cost;
     private final String category;
-    private boolean inStock;
+    int quantity;
 
-    public Product(String name, double cost, String category) {
+    public Product(int id, String name, double cost, String category, int quantity) {
+        this.id = id;
         this.name = name;
         this.cost = cost;
         this.category = category;
+        this.quantity = quantity;
     }
 
     public boolean isInStock() {

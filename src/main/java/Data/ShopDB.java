@@ -24,7 +24,7 @@ public class ShopDB {
         }
         catch (SQLException exception){
             System.out.println("Connection failed");
-            printErrors(exception);
+            printSqlErrors(exception);
         }
     }
 
@@ -34,11 +34,11 @@ public class ShopDB {
         }
         catch (SQLException exception) {
             System.out.println("Disconnect failed");
-            printErrors(exception);
+            printSqlErrors(exception);
         }
     }
 
-    public static void printErrors(SQLException exception) {
+    public static void printSqlErrors(SQLException exception) {
         System.out.println("Error code: " + exception.getErrorCode());
         System.out.println("Error msg: " + exception.getMessage());
         System.out.println("Error cause: " + exception.getCause());
