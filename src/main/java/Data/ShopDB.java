@@ -18,6 +18,7 @@ public class ShopDB {
 
     public void Connect() {
         try {
+            Class.forName("org.postgresql.Driver");
             Connection connection = DriverManager.getConnection(databaseURL, databaseUser, databasePassword);
             System.out.println("Connection successful");
             this.connection = connection;
@@ -25,6 +26,9 @@ public class ShopDB {
         catch (SQLException exception){
             System.out.println("Connection failed");
             printSqlErrors(exception);
+        } catch (ClassNotFoundException e) {
+            System.out.println("Could not find PostgreSQL driver");
+            throw new RuntimeException(e);
         }
     }
 

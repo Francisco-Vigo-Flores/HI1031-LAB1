@@ -38,10 +38,11 @@
         </dependency>
         <!-- postgres driver here -->
         <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>42.7.12</version>
-            </dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.12</version>
+        </dependency>
+        <!-- postgres driver here -->
     </dependencies>
 
     <build>

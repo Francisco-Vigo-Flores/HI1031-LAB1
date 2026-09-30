@@ -1,6 +1,5 @@
 package Application;
 
-import java.util.UUID;
 
 // for login
 public class User {
