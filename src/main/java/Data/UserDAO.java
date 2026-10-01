@@ -19,8 +19,7 @@ public class UserDAO {
         String addUserQuery =
                 "INSERT INTO \"User\" (NAME, USERNAME, PASSWORD, TYPE)  VALUES (?, ?, ?, 'Customer')";
 
-        try {
-            PreparedStatement stmt = this.connection.prepareStatement(addUserQuery);
+        try (PreparedStatement stmt = this.connection.prepareStatement(addUserQuery)){
             stmt.setString(1, name);
             stmt.setString(2, username);
             stmt.setString(3, password);
@@ -40,8 +39,7 @@ public class UserDAO {
         String singleUserQuery =
                 "SELECT usr.ID, usr.NAME, usr.USERNAME, usr.TYPE FROM \"User\" as usr WHERE usr.ID = ?";
 
-        try {
-            PreparedStatement stmt = this.connection.prepareStatement(singleUserQuery);
+        try(PreparedStatement stmt = this.connection.prepareStatement(singleUserQuery)) {
             stmt.setObject(1, userID);
             ResultSet queryResults = stmt.executeQuery();
 
@@ -63,8 +61,7 @@ public class UserDAO {
         String allUsersQuery =
                 "SELECT usr.ID, usr.NAME, usr.USERNAME, usr.TYPE FROM \"User\" as usr";
 
-        try {
-            PreparedStatement stmt = this.connection.prepareStatement(allUsersQuery);
+        try (PreparedStatement stmt = this.connection.prepareStatement(allUsersQuery)){
             ResultSet queryResults = stmt.executeQuery();
             while(queryResults.next()) {
                 users.add(mapUser(queryResults));

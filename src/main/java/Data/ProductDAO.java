@@ -14,8 +14,7 @@ public class ProductDAO {
     public boolean addProduct(String name, double cost, String category, String desc, int quantity) {
         String addProductQuery =
                 "INSERT INTO Product (NAME, COST, CATEGORY, DESCRIPTION, QUANTITY) VALUES (?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement stmt = connection.prepareStatement(addProductQuery);
+        try (PreparedStatement stmt = connection.prepareStatement(addProductQuery)){
             stmt.setString(1, name);
             stmt.setDouble(2, cost);
             stmt.setString(3, category);
@@ -33,10 +32,9 @@ public class ProductDAO {
     }
 
     public Product getProduct(int productID) {
-        String getProductQuery =
+        String singleProductQuery =
                 "SELECT ID, NAME, COST,CATEGORY, DESCRIPTION, QUANTITY FROM PRODUCT WHERE PRODUCT.ID = ?";
-        try {
-            PreparedStatement stmt = connection.prepareStatement(getProductQuery);
+        try (PreparedStatement stmt = connection.prepareStatement(singleProductQuery)){
             stmt.setInt(1, productID);
             ResultSet queryResults = stmt.executeQuery();
             if (!queryResults.next()) {
@@ -53,10 +51,9 @@ public class ProductDAO {
 
     public ArrayList<Product> getAllProducts() {
         ArrayList<Product> products = new ArrayList<>();
-        String getProductQuery =
+        String allProductsQuery =
                 "SELECT ID, NAME, COST,CATEGORY, QUANTITY, DESCRIPTION FROM PRODUCT";
-        try {
-            PreparedStatement stmt = connection.prepareStatement(getProductQuery);
+        try (PreparedStatement stmt = connection.prepareStatement(allProductsQuery)){
             ResultSet queryResults = stmt.executeQuery();
             while(queryResults.next()) {
                 products.add(mapProduct(queryResults));
