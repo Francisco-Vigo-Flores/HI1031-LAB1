@@ -21,7 +21,7 @@ button {
     font: inherit;
 }
 
-button {
+button, .button-link {
     border: 0;
     border-radius: 8px;
     background: #245d4b;
@@ -34,8 +34,10 @@ button {
     transition: background .2s, transform .2s;
 }
 
-button:hover {
+button:hover, .button-link:hover {
     background: #194837;
+    color: #fff;
+    text-decoration: none;
     transform: translateY(-2px);
 }
 

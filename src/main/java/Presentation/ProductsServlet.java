@@ -11,10 +11,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@WebServlet("/products")
+@WebServlet({"/products", "/cart"})
 public class ProductsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        if ("/cart".equals(request.getServletPath())) {
+            request.getRequestDispatcher("/WEB-INF/Views/cart.jsp").forward(request, response);
+            return;
+        }
+
         ShopDB db = new ShopDB("jdbc:postgresql://localhost:5432/postgres", "postgres", "0303");
         db.Connect();
 
