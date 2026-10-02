@@ -1,7 +1,7 @@
 <header class="site-header">
-    <a class="brand" href="${pageContext.request.contextPath}/products"><span>Webbshop .</span></a>
+    <a class="brand" href="${pageContext.request.contextPath}/"><span>Webbshop .</span></a>
     <nav aria-label="Huvudmeny">
-        <a href="${pageContext.request.contextPath}/products">Produkter</a>
+        <a href="${pageContext.request.contextPath}/">Produkter</a>
     </nav>
     <nav class="account" aria-label="Konto och varukorg">
         <a href="${pageContext.request.contextPath}/cart">Varukorg</a>

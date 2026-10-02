@@ -12,12 +12,12 @@
 <main class="page-content">
     <div class="page-heading">
         <div><p class="eyebrow">Dina val</p><h1>Din varukorg</h1></div>
-        <a href="${pageContext.request.contextPath}/products">Fortsätt handla</a>
+        <a href="${pageContext.request.contextPath}/">Fortsätt handla</a>
     </div>
     <div class="empty-state">
         <h2>Här är det tomt just nu</h2>
         <p>Lägg till något från våra produkter.</p>
-        <a class="button-link" href="${pageContext.request.contextPath}/products">Se produkter</a>
+        <a class="button-link" href="${pageContext.request.contextPath}/">Se produkter</a>
     </div>
 </main>
 </body>

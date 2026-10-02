@@ -75,6 +75,26 @@ public class UserDAO {
         return null;
     }
 
+    public boolean userExists(String username, String password) {
+        String findUserQuery = "SELECT usr.USERNAME, usr.PASSWORD FROM \"User\" AS usr " +
+                "WHERE usr.USERNAME = ? AND usr.PASSWORD = ?";
+
+        try (PreparedStatement stmt = this.connection.prepareStatement(findUserQuery)) {
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+            ResultSet queryResults = stmt.executeQuery();
+            if (!queryResults.next()) {
+                System.out.println("User doesn't exist");
+                return false;
+            }
+            return true;
+        } catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            System.out.println("Could not find User with those credentials");
+        }
+        return false;
+    }
+
     private User mapUser(ResultSet queryResult) throws SQLException {
         return new User(
                 queryResult.getInt("ID"),

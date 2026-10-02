@@ -19,7 +19,7 @@ CREATE  TABLE Product (
     QUANTITY INT NOT NULL
 );
 
-CREATE TABLE UserCart (
+CREATE TABLE Cart (
     ID INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     UserID INT NOT NULL UNIQUE,
     FOREIGN KEY (UserID) REFERENCES "User"(ID)
@@ -30,12 +30,12 @@ CREATE TABLE CartProducts (
     ProductID INT NOT NULL,
     Quantity INT NOT NULL DEFAULT 1,
     PRIMARY KEY (CartID, ProductID),
-    FOREIGN KEY (CartID) REFERENCES UserCart(ID),
+    FOREIGN KEY (CartID) REFERENCES Cart(ID),
     FOREIGN KEY (ProductID) REFERENCES Product(ID)
 );
 
 
 drop table "User";
 drop table product;
-drop table usercart;
+drop table Cart;
 drop table cartproducts;

@@ -11,8 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@WebServlet({"/products", "/cart"})
-public class ProductsServlet extends HttpServlet {
+@WebServlet({"", "/cart"})
+public class MainServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         if ("/cart".equals(request.getServletPath())) {
@@ -20,17 +20,16 @@ public class ProductsServlet extends HttpServlet {
             return;
         }
 
-        ShopDB db = new ShopDB("jdbc:postgresql://localhost:5432/postgres", "postgres", "0303");
+        ShopDB db = new ShopDB("jdbc:postgresql://localhost:5432/HI1031-LAB1", "postgres", "password");
         db.Connect();
 
         try {
             ProductDAO productDAO = new ProductDAO(db.getConnection());
             ArrayList<Product> products = productDAO.getAllProducts();
-
             request.setAttribute("products", products);
         } finally {
             db.disconnect();
         }
-        request.getRequestDispatcher("/WEB-INF/Views/product.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/Views/main.jsp").forward(request, response);
     }
 }

@@ -8,7 +8,7 @@ public class User {
     String name;
     String username;
     String password; //likely to change
-    UserCart cart;
+    Cart cart;
 
     public User(int id, UserType type, String name, String username) {
         this.id = id;
