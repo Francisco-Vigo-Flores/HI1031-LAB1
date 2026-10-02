@@ -14,6 +14,44 @@ import java.util.ArrayList;
 @WebServlet({"", "/cart"})
 public class MainServlet extends HttpServlet {
     @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int productId;
+        try {
+            productId = Integer.parseInt(request.getParameter("productId"));
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        ShopDB db = new ShopDB("jdbc:postgresql://localhost:5432/postgres", "postgres", "0303");
+        db.Connect();
+        if (db.getConnection() == null) {
+            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            return;
+        }
+        Product product;
+        try {
+            product = new ProductDAO(db.getConnection()).getProduct(productId);
+        } finally {
+            db.disconnect();
+        }
+        if (product == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        ArrayList<Product> cart = (ArrayList<Product>) request.getSession().getAttribute("cart");
+        if (cart == null) {
+            cart = new ArrayList<>();
+            request.getSession().setAttribute("cart", cart);
+        }
+        cart.add(product);
+        if ("fetch".equals(request.getHeader("X-Requested-With"))) {
+            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        } else {
+            response.sendRedirect(request.getContextPath() + "/products");
+        }
+    }
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         if ("/cart".equals(request.getServletPath())) {
             request.getRequestDispatcher("/WEB-INF/Views/cart.jsp").forward(request, response);

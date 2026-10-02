@@ -1,5 +1,5 @@
 <header class="site-header">
-    <a class="brand" href="${pageContext.request.contextPath}/"><span>Webbshop .</span></a>
+    <a class="brand" ><span>Webbshop .</span></a>
     <nav aria-label="Huvudmeny">
         <a href="${pageContext.request.contextPath}/">Produkter</a>
     </nav>

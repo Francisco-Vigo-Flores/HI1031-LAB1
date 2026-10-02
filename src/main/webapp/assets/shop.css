@@ -185,10 +185,12 @@ h1 {
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    grid-auto-rows: 1fr;
     gap: 20px;
 }
 
 .product-card {
+    position: relative;
     background: #fff;
     border: 1px solid #dce3de;
     border-radius: 14px;
@@ -283,8 +285,69 @@ h1 {
     margin-bottom: 24px;
 }
 
+@property --ring-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+.purchase-added::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    padding: 3px;
+    pointer-events: none;
+    background: conic-gradient(from var(--ring-angle), transparent 35%, #4da882 70%, #d5ffe4 90%, transparent);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    animation: purchase-ring 1.2s ease-in-out;
+}
+
+@keyframes purchase-ring {
+    from { --ring-angle: 0deg; opacity: 0; }
+    20%, 80% { opacity: 1; }
+    to { --ring-angle: 360deg; opacity: 0; }
+}
+
+#purchase-status {
+    min-height: 1.5em;
+    color: #245d4b;
+    font-size: 14px;
+}
+
+@media (max-width: 640px) {
+    .site-header {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 20px;
+    }
+
+    .brand {
+        white-space: nowrap;
+    }
+
+    .account {
+        width: 100%;
+        margin-left: 0;
+        justify-content: space-between;
+    }
+
+    .page-content {
+        padding: 30px 20px 50px;
+    }
+
+    .page-heading {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         transition: none !important;
+        animation: none !important;
     }
 }
