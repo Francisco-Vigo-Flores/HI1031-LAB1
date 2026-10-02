@@ -33,6 +33,9 @@ public class ShopDB {
     }
 
     public void disconnect() {
+        if (connection == null) {
+            return;
+        }
         try {
             connection.close();
         }

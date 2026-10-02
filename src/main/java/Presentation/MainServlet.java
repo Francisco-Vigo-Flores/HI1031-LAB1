@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@WebServlet({"", "/cart"})
+@WebServlet({"", "/products", "/cart"})
 public class MainServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -53,13 +53,21 @@ public class MainServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        if ("".equals(request.getServletPath())) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
         if ("/cart".equals(request.getServletPath())) {
             request.getRequestDispatcher("/WEB-INF/Views/cart.jsp").forward(request, response);
             return;
         }
 
-        ShopDB db = new ShopDB("jdbc:postgresql://localhost:5432/HI1031-LAB1", "postgres", "password");
+        ShopDB db = new ShopDB("jdbc:postgresql://localhost:5432/postgres", "postgres", "0303");
         db.Connect();
+        if (db.getConnection() == null) {
+            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            return;
+        }
 
         try {
             ProductDAO productDAO = new ProductDAO(db.getConnection());
