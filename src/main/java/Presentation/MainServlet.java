@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@WebServlet({"", "/products", "/cart"})
+@WebServlet({"/products", "/cart"})
 public class MainServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -53,10 +53,6 @@ public class MainServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        if ("".equals(request.getServletPath())) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
         if ("/cart".equals(request.getServletPath())) {
             request.getRequestDispatcher("/WEB-INF/Views/cart.jsp").forward(request, response);
             return;
