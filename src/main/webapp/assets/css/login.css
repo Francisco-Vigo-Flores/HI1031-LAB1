@@ -13,7 +13,7 @@ body {
     margin: 0;
 }
 
-button, input {
+button, input, select {
     font: inherit;
 }
 
@@ -99,7 +99,7 @@ form > label {
     margin-bottom: 8px;
 }
 
-form > input:not([type="hidden"]) {
+form > input:not([type="hidden"]), form > select {
     width: 100%;
     min-height: 46px;
     margin-bottom: 21px;
@@ -191,3 +191,6 @@ button:hover {
         transform: none;
     }
 }
+
+.form-link { margin: 24px 0 0; font-size: 14px; }
+.form-link a { color: #80f3c4; }

@@ -1,12 +1,12 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.List,Application.Product" %>
+<%@ page import="java.util.List,Application.Model.Product" %>
 <!DOCTYPE html>
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Webbshop</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/shop.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/shop.css">
 </head>
 <body>
 <%@ include file="header.jsp" %>
@@ -29,10 +29,13 @@
             <h2><%= product.getName() == null ? "" : product.getName().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") %></h2>
             <div class="product-bottom">
                 <p class="price"><%= product.getCost() %> kr</p>
+                <% if (Web.user(request) != null) { %>
                 <form method="post" action="${pageContext.request.contextPath}/cart">
+                    <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
                     <input type="hidden" name="productId" value="<%= product.getId() %>">
                     <button type="submit">Köp</button>
                 </form>
+                <% } else { %><a class="button-link" href="${pageContext.request.contextPath}/login">Logga in för att köpa</a><% } %>
             </div>
         </article>
     <% } } %>
@@ -56,6 +59,7 @@
                     body: new URLSearchParams(new FormData(form))
                 });
                 if (!response.ok) throw new Error('Purchase failed');
+                document.getElementById('cart-count').textContent = response.headers.get('X-Cart-Count');
                 card.classList.add('purchase-added');
                 button.textContent = 'Tillagd ✓';
                 status.textContent = card.querySelector('h2').textContent + ' har lagts i varukorgen.';
