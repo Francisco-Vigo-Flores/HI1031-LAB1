@@ -16,7 +16,6 @@ public class UserDAO {
     public UserDAO() {
         this.shopDB = new ShopDB();
     }
-
     public boolean addUser(String username, String name, String password){
         String addUserQuery =
                 "INSERT INTO \"User\" (NAME, USERNAME, PASSWORD, TYPE)  VALUES (?, ?, ?, 'Customer')";
@@ -96,7 +95,20 @@ public class UserDAO {
         }
         return -1;
     }
+    public boolean usernameTaken(String username) {
+        String usernameTakenQuery = "SELECT usr.USERNAME FROM \"User\" AS usr WHERE usr.USERNAME = ?";
 
+        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(usernameTakenQuery)) {
+            stmt.setString(1,username);
+            ResultSet queryResults = stmt.executeQuery();
+            return (queryResults.next());
+        }
+        catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            System.out.println("could not check whether that username was taken");
+        }
+        return false;
+    }
     private User mapUser(ResultSet queryResult) throws SQLException {
         return new User(
                 queryResult.getInt("ID"),

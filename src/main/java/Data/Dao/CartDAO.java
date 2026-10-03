@@ -1,15 +1,11 @@
 package Data.Dao;
-
 import Application.Model.CartProduct;
 import Application.Model.Product;
 import Data.ShopDB;
-
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
 public class CartDAO {
     private final ShopDB shopDB;
 
@@ -141,7 +137,6 @@ public class CartDAO {
         }
         return null;
     }
-
 
     private CartProduct mapCartProduct(ResultSet queryResults) throws SQLException {
         Product product = new Product(

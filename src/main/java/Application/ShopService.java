@@ -30,6 +30,29 @@ public class ShopService {
         return userDAO.getUser(userID);
     }
 
+    public boolean register(String username, String name, String password) {
+        if (username == null || name == null || password == null) {
+            return false;
+        }
+        if (username.isEmpty() || username.length() > 50
+                || name.isEmpty() || name.length() > 50
+                || password.trim().isEmpty() || password.length() > 4) {
+            return false;
+        }
+        if (userDAO.usernameTaken(username)) {
+            return false;
+        }
+        return userDAO.addUser(username, name, password);
+    }
+
+    public User getUser(int userID) {
+        return userDAO.getUser(userID);
+    }
+
+    public List<User> getAllUsers() {
+        return userDAO.getAllUsers();
+    }
+
     public List<Product> getAllProducts() {
         return productDAO.getAllProducts();
     }
@@ -42,7 +65,6 @@ public class ShopService {
         if (cart == null) {
             cart = new ArrayList<>();
         }
-
         Product product = productDAO.getProduct(productID);
         if (product != null) {
             cart.add(product);
@@ -50,11 +72,32 @@ public class ShopService {
         return cart;
     }
 
-    public Cart getCart(int userID) {
+    private int getOrCreateCartId(int userID) {
         int cartID = cartDAO.getCartIdByUserId(userID);
         if (cartID == -1) {
-            return null;
+            cartDAO.addCart(userID);
+            cartID = cartDAO.getCartIdByUserId(userID);
         }
+        return cartID;
+    }
+
+    public boolean addToCart(int userID, int productID) {
+        int cartID = getOrCreateCartId(userID);
+        return cartDAO.addOneProduct(productID, cartID);
+    }
+
+    public boolean removeFromCart(int userID, int productID, int quantity) {
+        int cartID = getOrCreateCartId(userID);
+        return cartDAO.removeProduct(productID, cartID, quantity);
+    }
+
+    public boolean clearCart(int userID) {
+        int cartID = getOrCreateCartId(userID);
+        return cartDAO.clearCart(cartID);
+    }
+
+    public Cart getCart(int userID) {
+        int cartID = getOrCreateCartId(userID);
         ArrayList<CartProduct> products = cartDAO.getCartProducts(cartID);
         if (products == null) {
             return null;

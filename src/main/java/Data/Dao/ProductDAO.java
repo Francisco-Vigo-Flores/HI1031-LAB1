@@ -68,6 +68,27 @@ public class ProductDAO {
         return null;
     }
 
+
+    public boolean removeProduct(int productID, int quantity) {
+        String removeProductQuery = "UPDATE Product SET Quantity = Quantity - ? " +
+                "WHERE ID = ? AND Quantity >= ?";
+
+        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(removeProductQuery)) {
+            stmt.setInt(1, quantity);
+            stmt.setInt(2, productID);
+            stmt.setInt(3, quantity);
+            return stmt.executeUpdate() == 1;
+        } catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            System.out.println("Error when reducing product stock");
+        }
+        return false;
+    }
+
+    public boolean removeOneProduct(int productID) {
+        return removeProduct(productID,1);
+    }
+
     private Product mapProduct(ResultSet queryResult) throws SQLException {
         return new Product(
                 queryResult.getInt("ID"),
