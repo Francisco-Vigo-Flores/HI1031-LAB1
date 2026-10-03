@@ -1,7 +1,7 @@
 package Data;
 
-import Application.CartProduct;
-import Application.Product;
+import Application.Model.CartProduct;
+import Application.Model.Product;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -86,6 +86,37 @@ public class CartDAO {
 
     public boolean removeOneProduct(int productID, int cartID) {
         return removeProduct(productID, cartID, 1);
+    }
+
+    public boolean clearCart(int cartID) {
+        String clearCartQuery = "DELETE FROM CartProducts WHERE CartID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(clearCartQuery)) {
+            stmt.setInt(1, cartID);
+            stmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            System.out.println("Could not clear cart");
+        }
+        return false;
+    }
+
+    public int getCartIdByUserId(int userID) {
+        String getCartQuery = "SELECT ID FROM Cart WHERE UserID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(getCartQuery)) {
+            stmt.setInt(1, userID);
+
+            ResultSet result = stmt.executeQuery();
+            if (!result.next()) {
+                System.out.println("Could not find cart for userID:" + userID);
+                return -1;
+            }
+            return result.getInt("ID");
+        } catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            System.out.println("Could not find cart for user");
+        }
+        return -1;
     }
 
     public ArrayList<CartProduct> getCartProducts(int cartID) {

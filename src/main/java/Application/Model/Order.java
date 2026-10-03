@@ -1,4 +1,4 @@
-package Application;
+package Application.Model;
 
 public class Order {
     private int id;

@@ -1,6 +1,6 @@
 package Data;
 
-import Application.Product;
+import Application.Model.Product;
 import java.sql.*;
 import java.util.ArrayList;
 

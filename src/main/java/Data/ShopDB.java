@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ShopDB {
-    private Connection connection;
     private final String databaseURL;
     private final String databaseUser;
     private final String databasePassword;
@@ -16,12 +15,12 @@ public class ShopDB {
         this.databasePassword = databasePassword;
     }
 
-    public void Connect() {
+    public Connection getConnection() {
         try {
             Class.forName("org.postgresql.Driver");
             Connection connection = DriverManager.getConnection(databaseURL, databaseUser, databasePassword);
             System.out.println("Connection successful");
-            this.connection = connection;
+            return connection;
         }
         catch (SQLException exception){
             System.out.println("Connection failed");
@@ -30,16 +29,7 @@ public class ShopDB {
             System.out.println("Could not find PostgreSQL driver");
             throw new RuntimeException(e);
         }
-    }
-
-    public void disconnect() {
-        try {
-            connection.close();
-        }
-        catch (SQLException exception) {
-            System.out.println("Disconnect failed");
-            printSqlErrors(exception);
-        }
+        return null;
     }
 
     public static void printSqlErrors(SQLException exception) {
@@ -48,7 +38,4 @@ public class ShopDB {
         System.out.println("Error cause: " + exception.getCause());
     }
 
-    public Connection getConnection() {
-        return connection;
-    }
 }

@@ -1,7 +1,7 @@
 package Data;
 
-import Application.User;
-import Application.UserType;
+import Application.Model.User;
+import Application.Model.UserType;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -75,8 +75,8 @@ public class UserDAO {
         return null;
     }
 
-    public boolean userExists(String username, String password) {
-        String findUserQuery = "SELECT usr.USERNAME, usr.PASSWORD FROM \"User\" AS usr " +
+    public int userExists(String username, String password) {
+        String findUserQuery = "SELECT usr.ID, usr.USERNAME, usr.PASSWORD FROM \"User\" AS usr " +
                 "WHERE usr.USERNAME = ? AND usr.PASSWORD = ?";
 
         try (PreparedStatement stmt = this.connection.prepareStatement(findUserQuery)) {
@@ -85,14 +85,14 @@ public class UserDAO {
             ResultSet queryResults = stmt.executeQuery();
             if (!queryResults.next()) {
                 System.out.println("User doesn't exist");
-                return false;
+                return -1;
             }
-            return true;
+            return queryResults.getInt("ID");
         } catch (SQLException e) {
             ShopDB.printSqlErrors(e);
             System.out.println("Could not find User with those credentials");
         }
-        return false;
+        return -1;
     }
 
     private User mapUser(ResultSet queryResult) throws SQLException {
