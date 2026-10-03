@@ -95,6 +95,17 @@ public class UserDAO {
         return -1;
     }
 
+    public User authenticate(String username, String password) throws SQLException {
+        String query = "SELECT ID, NAME, USERNAME, TYPE FROM \"User\" WHERE USERNAME = ? AND PASSWORD = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+            try (ResultSet results = stmt.executeQuery()) {
+                return results.next() ? mapUser(results) : null;
+            }
+        }
+    }
+
     private User mapUser(ResultSet queryResult) throws SQLException {
         return new User(
                 queryResult.getInt("ID"),
