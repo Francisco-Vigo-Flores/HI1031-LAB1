@@ -1,5 +1,7 @@
 package Data;
 
+import Application.ShopService;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -13,6 +15,12 @@ public class ShopDB {
         this.databaseURL = databaseURL;
         this.databaseUser = databaseUser;
         this.databasePassword = databasePassword;
+    }
+
+    public ShopDB() {
+        this.databaseURL = "jdbc:postgresql://localhost:5432/HI1031-LAB1";
+        this.databaseUser = "postgres";
+        this.databasePassword = "password";
     }
 
     public Connection getConnection() {

@@ -1,6 +1,6 @@
 ﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
-<%@ page import="java.util.List,java.util.Map,java.util.LinkedHashMap,Application.Product" %>
+<%@ page import="java.util.List,java.util.Map,java.util.LinkedHashMap,Application.Model.Product" %>
 <html lang="sv">
 <head>
     <meta charset="UTF-8">

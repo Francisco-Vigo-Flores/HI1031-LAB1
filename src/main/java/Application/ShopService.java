@@ -4,9 +4,9 @@ import Application.Model.Cart;
 import Application.Model.CartProduct;
 import Application.Model.Product;
 import Application.Model.User;
-import Data.CartDAO;
-import Data.ProductDAO;
-import Data.UserDAO;
+import Data.Dao.CartDAO;
+import Data.Dao.ProductDAO;
+import Data.Dao.UserDAO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +16,10 @@ public class ShopService {
     private final ProductDAO productDAO;
     private final UserDAO userDAO;
 
-    public ShopService(CartDAO cartDAO, ProductDAO productDAO, UserDAO userDAO) {
-        this.cartDAO = cartDAO;
-        this.productDAO = productDAO;
-        this.userDAO = userDAO;
+    public ShopService() {
+        this.cartDAO = new CartDAO();
+        this.productDAO = new ProductDAO();
+        this.userDAO = new UserDAO();
     }
 
     public User login(String username, String password) {
@@ -39,11 +39,14 @@ public class ShopService {
     }
 
     public ArrayList<Product> addToCart(ArrayList<Product> cart, int productID) {
-        Product product = productDAO.getProduct(productID);
-        if (product == null) {
-            return null;
+        if (cart == null) {
+            cart = new ArrayList<>();
         }
-        cart.add(product);
+
+        Product product = productDAO.getProduct(productID);
+        if (product != null) {
+            cart.add(product);
+        }
         return cart;
     }
 

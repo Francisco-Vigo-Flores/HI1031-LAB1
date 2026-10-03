@@ -1,7 +1,9 @@
-package Data;
+package Data.Dao;
 
 import Application.Model.User;
 import Application.Model.UserType;
+import Data.ShopDB;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,17 +11,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class UserDAO {
-    private final Connection connection;
+    private final ShopDB shopDB;
 
-    public UserDAO(Connection connection) {
-        this.connection = connection;
+    public UserDAO() {
+        this.shopDB = new ShopDB();
     }
 
     public boolean addUser(String username, String name, String password){
         String addUserQuery =
                 "INSERT INTO \"User\" (NAME, USERNAME, PASSWORD, TYPE)  VALUES (?, ?, ?, 'Customer')";
 
-        try (PreparedStatement stmt = this.connection.prepareStatement(addUserQuery)){
+        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(addUserQuery)){
             stmt.setString(1, name);
             stmt.setString(2, username);
             stmt.setString(3, password);
@@ -39,7 +41,7 @@ public class UserDAO {
         String singleUserQuery =
                 "SELECT usr.ID, usr.NAME, usr.USERNAME, usr.TYPE FROM \"User\" as usr WHERE usr.ID = ?";
 
-        try(PreparedStatement stmt = this.connection.prepareStatement(singleUserQuery)) {
+        try(PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(singleUserQuery)) {
             stmt.setObject(1, userID);
             ResultSet queryResults = stmt.executeQuery();
 
@@ -61,7 +63,7 @@ public class UserDAO {
         String allUsersQuery =
                 "SELECT usr.ID, usr.NAME, usr.USERNAME, usr.TYPE FROM \"User\" as usr";
 
-        try (PreparedStatement stmt = this.connection.prepareStatement(allUsersQuery)){
+        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(allUsersQuery)){
             ResultSet queryResults = stmt.executeQuery();
             while(queryResults.next()) {
                 users.add(mapUser(queryResults));
@@ -79,7 +81,7 @@ public class UserDAO {
         String findUserQuery = "SELECT usr.ID, usr.USERNAME, usr.PASSWORD FROM \"User\" AS usr " +
                 "WHERE usr.USERNAME = ? AND usr.PASSWORD = ?";
 
-        try (PreparedStatement stmt = this.connection.prepareStatement(findUserQuery)) {
+        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(findUserQuery)) {
             stmt.setString(1, username);
             stmt.setString(2, password);
             ResultSet queryResults = stmt.executeQuery();
@@ -93,17 +95,6 @@ public class UserDAO {
             System.out.println("Could not find User with those credentials");
         }
         return -1;
-    }
-
-    public User authenticate(String username, String password) throws SQLException {
-        String query = "SELECT ID, NAME, USERNAME, TYPE FROM \"User\" WHERE USERNAME = ? AND PASSWORD = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, username);
-            stmt.setString(2, password);
-            try (ResultSet results = stmt.executeQuery()) {
-                return results.next() ? mapUser(results) : null;
-            }
-        }
     }
 
     private User mapUser(ResultSet queryResult) throws SQLException {

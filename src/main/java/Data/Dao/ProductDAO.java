@@ -1,20 +1,22 @@
-package Data;
+package Data.Dao;
 
 import Application.Model.Product;
+import Data.ShopDB;
+
 import java.sql.*;
 import java.util.ArrayList;
 
 public class ProductDAO {
-    private Connection connection;
+    private ShopDB shopDB;
 
-    public ProductDAO(Connection connection) {
-        this.connection = connection;
+    public ProductDAO() {
+        this.shopDB = new ShopDB();
     }
 
     public boolean addProduct(String name, double cost, String category, String desc, int quantity) {
         String addProductQuery =
                 "INSERT INTO Product (NAME, COST, CATEGORY, DESCRIPTION, QUANTITY) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(addProductQuery)){
+        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(addProductQuery)){
             stmt.setString(1, name);
             stmt.setDouble(2, cost);
             stmt.setString(3, category);
@@ -34,7 +36,7 @@ public class ProductDAO {
     public Product getProduct(int productID) {
         String singleProductQuery =
                 "SELECT ID, NAME, COST,CATEGORY, DESCRIPTION, QUANTITY FROM PRODUCT WHERE PRODUCT.ID = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(singleProductQuery)){
+        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(singleProductQuery)){
             stmt.setInt(1, productID);
             ResultSet queryResults = stmt.executeQuery();
             if (!queryResults.next()) {
@@ -53,7 +55,7 @@ public class ProductDAO {
         ArrayList<Product> products = new ArrayList<>();
         String allProductsQuery =
                 "SELECT ID, NAME, COST,CATEGORY, QUANTITY, DESCRIPTION FROM PRODUCT";
-        try (PreparedStatement stmt = connection.prepareStatement(allProductsQuery)){
+        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(allProductsQuery)){
             ResultSet queryResults = stmt.executeQuery();
             while(queryResults.next()) {
                 products.add(mapProduct(queryResults));
