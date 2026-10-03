@@ -22,7 +22,7 @@ public class MainServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        ShopDB db = new ShopDB("jdbc:postgresql://localhost:5432/postgres", "postgres", "0303");
+        ShopDB db = new ShopDB("jdbc:postgresql://localhost:5432/HI1031-LAB1", "postgres", "password");
         db.Connect();
         if (db.getConnection() == null) {
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);

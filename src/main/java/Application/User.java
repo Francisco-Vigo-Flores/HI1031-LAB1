@@ -4,16 +4,40 @@ package Application;
 // for login
 public class User {
     private int id;
-    UserType type;
-    String name;
-    String username;
-    String password; //likely to change
-    Cart cart;
+    private UserType type;
+    private String name;
+    private String username;
+    private String password; //likely to change
+    private Cart cart;
 
     public User(int id, UserType type, String name, String username) {
         this.id = id;
         this.type = type;
         this.name = name;
         this.username = username;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public UserType getType() {
+        return type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Cart getCart() {
+        return cart;
     }
 }

@@ -1,12 +1,23 @@
 package Application;
 
 public class CartProduct {
-    Product product;
-    int amountInCart;
+    private Product product;
+    private int amountInCart;
 
-    public CartProduct(int ammountInCart, Product product) {
-        this.amountInCart = ammountInCart;
+    public CartProduct(int amountInCart, Product product) {
+        this.amountInCart = amountInCart;
         this.product = product;
     }
 
+    public double getProductCost() {
+        return product.getCost() * amountInCart;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public int getAmountInCart() {
+        return amountInCart;
+    }
 }

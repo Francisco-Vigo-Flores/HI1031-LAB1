@@ -33,14 +33,15 @@ public class CartDAO {
         return false;
     }
 
-    public boolean addProduct(int cartID, int productID) {
-        String addProduct = "INSERT INTO CartProducts (CartID, ProductID) VALUES (?,?)";
-
-        try (PreparedStatement stmt = this.connection.prepareStatement(addProduct)) {
+    public boolean addProduct(int productID, int cartID, int quantity) {
+        String addSameProductsQuery = "INSERT INTO CartProducts (CartID, ProductID, Quantity) VALUES (?,?,?) " +
+                "ON CONFLICT (CartID, ProductID) DO UPDATE SET Quantity = CartProducts.Quantity+EXCLUDED.Quantity";
+        try (PreparedStatement stmt = this.connection.prepareStatement(addSameProductsQuery)) {
             stmt.setInt(1, cartID);
             stmt.setInt(2, productID);
+            stmt.setInt(3, quantity);
             if (stmt.executeUpdate() == 1) {
-                System.out.println("Product successfully added to cart");
+                System.out.println("Successfully added " + quantity + "to cart");
                 return true;
             }
         }
@@ -51,11 +52,47 @@ public class CartDAO {
         return false;
     }
 
+    public boolean addOneProduct(int productID, int cartID) {
+        return addProduct(productID,cartID,1);
+    }
+
+    public boolean removeProduct(int productID, int cartID, int quantity) {
+        String removeProductQuery = "UPDATE CartProducts SET Quantity = Quantity - ? " +
+                "WHERE CartID = ? AND ProductID = ? AND Quantity >= ?";
+        String deleteEmptyItemQuery = "DELETE FROM CartProducts " +
+                "WHERE CartID = ? AND ProductID = ? AND Quantity = 0";
+
+        try (PreparedStatement stmt = connection.prepareStatement(removeProductQuery)) {
+            stmt.setInt(1, quantity);
+            stmt.setInt(2, cartID);
+            stmt.setInt(3, productID);
+            stmt.setInt(4, quantity);
+            if (stmt.executeUpdate() != 1) {
+                return false;
+            }
+
+            try (PreparedStatement deleteStmt = connection.prepareStatement(deleteEmptyItemQuery)) {
+                deleteStmt.setInt(1, cartID);
+                deleteStmt.setInt(2, productID);
+                deleteStmt.executeUpdate();
+            }
+            return true;
+        } catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            System.out.println("Error when removing product");
+        }
+        return false;
+    }
+
+    public boolean removeOneProduct(int productID, int cartID) {
+        return removeProduct(productID, cartID, 1);
+    }
+
     public ArrayList<CartProduct> getCartProducts(int cartID) {
         ArrayList<CartProduct> cartProducts = new ArrayList<>();
         String getCartProductsQuery = "SELECT p.ID, p.NAME, p.COST AS \"Cost per product\", " +
-                "p.CATEGORY, p.DESCRIPTION, p.QUANTITY AS \"Amount in stock\", cp.QUANTITY AS \"Amount in cart\", "+
-                "(cp.QUANTITY * p.COST) as \"Total Cost\" FROM Product as p JOIN CartProducts as cp " +
+                "p.CATEGORY, p.DESCRIPTION, p.QUANTITY AS \"Amount in stock\", cp.QUANTITY AS \"Amount in cart\" " +
+                "FROM Product as p JOIN CartProducts as cp " +
                 "ON cp.ProductID = p.ID WHERE cp.CartID = ?";
 
         try (PreparedStatement stmt = this.connection.prepareStatement(getCartProductsQuery)) {
@@ -72,6 +109,7 @@ public class CartDAO {
         }
         return null;
     }
+
 
     private CartProduct mapCartProduct(ResultSet queryResults) throws SQLException {
         Product product = new Product(

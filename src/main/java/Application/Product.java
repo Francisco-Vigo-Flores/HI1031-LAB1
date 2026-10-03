@@ -33,6 +33,14 @@ public class Product {
         return category;
     }
 
+    public String getDesc() {
+        return desc;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
     @Override
     public String toString() {
         return "Product{" +
