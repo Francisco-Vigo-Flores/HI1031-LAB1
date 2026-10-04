@@ -58,7 +58,7 @@ button:disabled {
     padding: 25px 28px;
     display: flex;
     align-items: center;
-    gap: 38px;
+    gap: 20px;
     border-bottom: 1px solid #dce3de;
 }
 
@@ -76,7 +76,7 @@ button:disabled {
 nav {
     display: flex;
     align-items: center;
-    gap: 22px;
+    gap: 8px;
 }
 
 nav a {
@@ -105,13 +105,8 @@ nav a:hover {
     margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
     font-size: 13px;
-}
-
-.account-name {
-    max-width: 180px;
-    overflow-wrap: anywhere;
 }
 
 .text-button {
@@ -305,9 +300,12 @@ h1 {
 }
 
 @keyframes purchase-ring {
-    from { --ring-angle: 0deg; opacity: 0; }
-    20%, 80% { opacity: 1; }
-    to { --ring-angle: 360deg; opacity: 0; }
+    from {
+        --ring-angle: 0deg; opacity: 0; }
+    20%, 80% {
+        opacity: 1; }
+    to {
+        --ring-angle: 360deg; opacity: 0; }
 }
 
 #purchase-status {
@@ -316,38 +314,91 @@ h1 {
     font-size: 14px;
 }
 
-@media (max-width: 640px) {
-    .site-header {
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 18px;
-        padding: 20px;
-    }
-
-    .brand {
-        white-space: nowrap;
-    }
-
-    .account {
-        width: 100%;
-        margin-left: 0;
-        justify-content: space-between;
-    }
-
-    .page-content {
-        padding: 30px 20px 50px;
-    }
-
-    .page-heading {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-}
-
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         transition: none !important;
         animation: none !important;
     }
 }
+
+.site-header, nav {
+    flex-wrap: wrap; }
+
+
+.edit-form {
+    display: grid; gap: 10px; }
+
+.edit-form input, .edit-form select {
+    width: 100%; min-height: 44px; padding: 10px 12px; font: inherit;
+    border: 1px solid #c9d7ce; border-radius: 8px; background: #fff; color: #20312e;
+}
+.form-actions { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 24px; }
+
+.site-header .nav-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 14px;
+    border: 1px solid #dce5df;
+    border-radius: 12px;
+    background: #fff;
+    color: #425c50;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background .18s, border-color .18s, box-shadow .18s;
+}
+.site-header .nav-button:hover {
+    background: #edf5ef;
+    border-color: #a8c7b5;
+    box-shadow: 0 3px 10px #20312e0a;
+    transform: none;
+}
+.site-header .nav-button[aria-current="page"] {
+    color: #194837;
+    background: #e0eee5;
+    border-color: #a8c7b5;
+}
+.site-header .order-button {
+    background: #245d4b;
+    border-color: #245d4b;
+    color: #fff;
+}
+.site-header .order-button:hover {
+    background: #194837;
+    border-color: #194837;
+}
+.site-header .logout-button { background: transparent; }
+.cart-count { color: #245d4b; line-height: 1.4; }
+.cart-total { margin: 30px 0 0; font-size: 20px; }
+
+.profile-card {
+    padding: clamp(24px, 4vw, 40px);
+    border: 1px solid #dce3de;
+    border-radius: 18px;
+    background: #fff;
+}
+.profile-identity {
+    display: flex; align-items: center; gap: 20px; }
+
+.profile-identity > div {
+    min-width: 0; }
+
+.profile-avatar {
+    display: grid; place-items: center; flex: 0 0 68px; height: 68px;
+    border-radius: 20px; background: #e0eee5; color: #245d4b; font-size: 30px; font-weight: 650;
+}
+.profile-identity h2 { margin: 0 0 10px; font-size: 26px; overflow-wrap: anywhere; }
+.role-badge { display: inline-block; padding: 5px 11px; border-radius: 20px; background: #edf5ef; color: #245d4b; font-size: 13px; font-weight: 600; }
+.profile-details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 32px 0 24px; padding-top: 28px; border-top: 1px solid #e5ebe7; }
+.profile-details dt { font-size: 13px; color: #65736c; margin-bottom: 8px; }
+.profile-details dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.profile-description, .profile-management .page-heading p:not(.eyebrow) { color: #65736c; line-height: 1.6; margin-bottom: 0; }
+.profile-management { margin-top: 48px; scroll-margin-top: 24px; }
+.profile-management h2 { margin: 0; font-size: 26px; letter-spacing: -.5px; }
+.profile-management h3 { margin: 0 0 8px; font-size: 20px; overflow-wrap: anywhere; }
+.profile-management .product-card:hover { transform: none; box-shadow: none; }
+.profile-management .edit-form { margin-top: 14px; }
