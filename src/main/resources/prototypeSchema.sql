@@ -34,8 +34,26 @@ CREATE TABLE CartProducts (
     FOREIGN KEY (ProductID) REFERENCES Product(ID)
 );
 
+CREATE TABLE Orders (
+    ID INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    UserID INT NOT NULL,
+    IsComplete BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (UserID) REFERENCES "User"(ID)
+);
+
+CREATE TABLE OrderProducts (
+    OrderID INT NOT NULL,
+    ProductID INT NOT NULL,
+    Quantity INT NOT NULL,
+    UnitPrice DOUBLE PRECISION NOT NULL,
+    PRIMARY KEY (OrderID, ProductID),
+    FOREIGN KEY (OrderID) REFERENCES Orders(ID),
+    FOREIGN KEY (ProductID) REFERENCES Product(ID)
+);
 
 drop table "User";
-drop table product;
+drop table Product;
 drop table Cart;
-drop table cartproducts;
+drop table CartProducts;
+drop table Orders;
+drop table OrderProducts;
