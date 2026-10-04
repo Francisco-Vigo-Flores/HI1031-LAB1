@@ -5,6 +5,7 @@ import Application.Entities.CartProduct;
 import Application.Entities.Product;
 import Application.Entities.User;
 import Data.Dao.CartDAO;
+import Data.Dao.OrderDAO;
 import Data.Dao.ProductDAO;
 import Data.Dao.UserDAO;
 
@@ -15,11 +16,13 @@ public class ShopService {
     private final CartDAO cartDAO;
     private final ProductDAO productDAO;
     private final UserDAO userDAO;
+    private final OrderDAO orderDAO;
 
     public ShopService() {
         this.cartDAO = new CartDAO();
         this.productDAO = new ProductDAO();
         this.userDAO = new UserDAO();
+        this.orderDAO = new OrderDAO();
     }
 
     public User login(String username, String password) {
@@ -97,5 +100,33 @@ public class ShopService {
         int cartID = getOrCreateCartId(userID);
         ArrayList<CartProduct> products = cartDAO.getCartProducts(cartID);
         return new Cart(products);
+    }
+
+    public int placeOrder(int userID) {
+        User user = userDAO.getUser(userID);
+        if (user == null) {
+            return -1;
+        }
+        Cart cart = getCart(userID);
+        if (cart.getProducts() == null) {
+            return -1;
+        }
+        return orderDAO.order(user, cart);
+    }
+
+    public ArrayList<CartProduct> getOrderProducts(int orderID) {
+        return orderDAO.getOrderProducts(orderID);
+    }
+
+    public boolean completeOrder(int orderID) {
+        return orderDAO.completeOrder(orderID);
+    }
+
+    public ArrayList<Integer> getOrderIdsByUserId(int userID) {
+        return orderDAO.getOrderIdsByUserId(userID);
+    }
+
+    public ArrayList<Integer> getIncompleteOrderIds() {
+        return orderDAO.getIncompleteOrderIds();
     }
 }

@@ -7,7 +7,7 @@ public class User {
     private UserType type;
     private String name;
     private String username;
-    private String password; //likely to change
+    private String password;
     private Cart cart;
 
     public User(int id, UserType type, String name, String username) {
@@ -27,6 +27,10 @@ public class User {
 
     public String getName() {
         return name;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 
     public String getUsername() {
