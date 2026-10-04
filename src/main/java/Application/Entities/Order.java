@@ -1,4 +1,4 @@
-package Application.Model;
+package Application.Entities;
 
 public class Order {
     private int id;

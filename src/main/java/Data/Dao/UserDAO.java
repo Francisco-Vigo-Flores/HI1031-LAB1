@@ -1,10 +1,9 @@
 package Data.Dao;
 
-import Application.Model.User;
-import Application.Model.UserType;
+import Application.Entities.User;
+import Application.Entities.UserType;
 import Data.ShopDB;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,24 +15,26 @@ public class UserDAO {
     public UserDAO() {
         this.shopDB = new ShopDB();
     }
-    public boolean addUser(String username, String name, String password){
+    public int addUser(String username, String name, String password){
         String addUserQuery =
-                "INSERT INTO \"User\" (NAME, USERNAME, PASSWORD, TYPE)  VALUES (?, ?, ?, 'Customer')";
+                "INSERT INTO \"User\" (NAME, USERNAME, PASSWORD, TYPE) VALUES (?, ?, ?, 'Customer') RETURNING ID";
 
         try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(addUserQuery)){
             stmt.setString(1, name);
             stmt.setString(2, username);
             stmt.setString(3, password);
-            if(stmt.executeUpdate() == 1){
+            ResultSet queryResults = stmt.executeQuery();
+            if (queryResults.next()) {
                 System.out.println("User added successfully");
-                return true;
+                return queryResults.getInt("ID");
             }
+
         }
         catch (SQLException e) {
                 ShopDB.printSqlErrors(e);
                 System.out.println("Could not add user to DB");
         }
-        return false;
+        return -1;
     }
 
     public User getUser(int userID) {

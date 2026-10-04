@@ -1,6 +1,6 @@
 package Presentation;
 
-import Application.Model.User;
+import Application.Entities.User;
 import Application.ShopService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,10 +18,10 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
         String username = req.getParameter("username");
         String password = req.getParameter("password");
         User user = shopService.login(username, password);
-
         if (user == null) {
             req.setAttribute("error", "Fel användarnamn eller lösenord.");
             req.getRequestDispatcher("/WEB-INF/Views/login.jsp").forward(req, resp);

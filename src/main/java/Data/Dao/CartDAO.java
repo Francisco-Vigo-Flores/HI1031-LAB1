@@ -1,6 +1,6 @@
 package Data.Dao;
-import Application.Model.CartProduct;
-import Application.Model.Product;
+import Application.Entities.CartProduct;
+import Application.Entities.Product;
 import Data.ShopDB;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

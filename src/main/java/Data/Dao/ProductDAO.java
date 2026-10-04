@@ -1,6 +1,6 @@
 package Data.Dao;
 
-import Application.Model.Product;
+import Application.Entities.Product;
 import Data.ShopDB;
 
 import java.sql.*;

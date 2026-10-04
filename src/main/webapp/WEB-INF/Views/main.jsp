@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.List,Application.Model.Product" %>
+<%@ page import="java.util.List,Application.Entities.Product" %>
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -29,7 +29,7 @@
             <h2><%= product.getName() == null ? "" : product.getName().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") %></h2>
             <div class="product-bottom">
                 <p class="price"><%= product.getCost() %> kr</p>
-                <% if (Web.user(request) != null) { %>
+                <% if (currentUser != null) { %>
                 <form method="post" action="${pageContext.request.contextPath}/cart">
                     <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
                     <input type="hidden" name="productId" value="<%= product.getId() %>">
@@ -58,6 +58,10 @@
                     headers: { 'X-Requested-With': 'fetch' },
                     body: new URLSearchParams(new FormData(form))
                 });
+                if (response.status === 401) {
+                    window.location.href = '${pageContext.request.contextPath}/login';
+                    return;
+                }
                 if (!response.ok) throw new Error('Purchase failed');
                 document.getElementById('cart-count').textContent = response.headers.get('X-Cart-Count');
                 card.classList.add('purchase-added');

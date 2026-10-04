@@ -1,4 +1,4 @@
-package Application.Model;
+package Application.Entities;
 
 import java.util.ArrayList;
 
@@ -11,6 +11,14 @@ public class Cart {
 
     public ArrayList<CartProduct> getProducts() {
         return products;
+    }
+
+    public int getProductCount() {
+        int count = 0;
+        for (CartProduct product : products) {
+            count += product.getAmountInCart();
+        }
+        return count;
     }
 
     public void removeAllOfItem(int productID){

@@ -1,9 +1,9 @@
 package Application;
 
-import Application.Model.Cart;
-import Application.Model.CartProduct;
-import Application.Model.Product;
-import Application.Model.User;
+import Application.Entities.Cart;
+import Application.Entities.CartProduct;
+import Application.Entities.Product;
+import Application.Entities.User;
 import Data.Dao.CartDAO;
 import Data.Dao.ProductDAO;
 import Data.Dao.UserDAO;
@@ -42,7 +42,11 @@ public class ShopService {
         if (userDAO.usernameTaken(username)) {
             return false;
         }
-        return userDAO.addUser(username, name, password);
+        int userID = userDAO.addUser(username, name, password);
+        if (userID == -1) {
+            return false;
+        }
+        return cartDAO.addCart(userID);
     }
 
     public User getUser(int userID) {
@@ -61,17 +65,6 @@ public class ShopService {
         return productDAO.getProduct(productID);
     }
 
-    public ArrayList<Product> addToCart(ArrayList<Product> cart, int productID) {
-        if (cart == null) {
-            cart = new ArrayList<>();
-        }
-        Product product = productDAO.getProduct(productID);
-        if (product != null) {
-            cart.add(product);
-        }
-        return cart;
-    }
-
     private int getOrCreateCartId(int userID) {
         int cartID = cartDAO.getCartIdByUserId(userID);
         if (cartID == -1) {
@@ -82,8 +75,12 @@ public class ShopService {
     }
 
     public boolean addToCart(int userID, int productID) {
+        return addToCart(userID, productID, 1);
+    }
+
+    public boolean addToCart(int userID, int productID, int quantity) {
         int cartID = getOrCreateCartId(userID);
-        return cartDAO.addOneProduct(productID, cartID);
+        return cartDAO.addProduct(productID, cartID, quantity);
     }
 
     public boolean removeFromCart(int userID, int productID, int quantity) {
@@ -99,9 +96,6 @@ public class ShopService {
     public Cart getCart(int userID) {
         int cartID = getOrCreateCartId(userID);
         ArrayList<CartProduct> products = cartDAO.getCartProducts(cartID);
-        if (products == null) {
-            return null;
-        }
         return new Cart(products);
     }
 }

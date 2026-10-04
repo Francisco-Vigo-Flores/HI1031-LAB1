@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="Presentation.Web" %>
 <% boolean registering = Boolean.TRUE.equals(request.getAttribute("registering")); %>
 <!DOCTYPE html>
 <html lang="sv">
@@ -16,9 +15,9 @@
         <section class="login-card" aria-labelledby="login-heading">
             <p class="brand">Webbshop<span>.</span></p>
             <h1 id="login-heading"><%= registering ? "Skapa konto" : "Logga in" %></h1>
-            <p class="intro"><%= registering ? (Web.admin(request) ? "Skapa ett konto och välj behörighet." : "Skapa ett kundkonto för att beställa.") : "Välkommen tillbaka. Dina produkter väntar." %></p>
+            <p class="intro"><%= registering ? "Skapa ett kundkonto." : "Logga in till ditt konto." %></p>
             <% if (request.getAttribute("error") != null) { %>
-                <p class="error" role="alert"><%= Web.escape(request.getAttribute("error")) %></p>
+                <p class="error" role="alert"><%= (request.getAttribute("error") == null ? "" : request.getAttribute("error").toString().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;")) %></p>
             <% } %>
             <% if (request.getParameter("registered") != null) { %>
                 <p class="intro" role="status">Kontot är skapat. Logga in för att beställa.</p>
@@ -27,25 +26,21 @@
                 <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
                 <% if (registering) { %>
                 <label for="name">Namn</label>
-                <input id="name" name="name" autocomplete="name" maxlength="50" value="<%= Web.escape(request.getParameter("name")) %>" required>
+                <input id="name" name="name" autocomplete="name" maxlength="50" value="<%= (request.getParameter("name") == null ? "" : request.getParameter("name").toString().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;")) %>" required>
                 <% } %>
                 <label for="username">Användarnamn</label>
                 <input id="username" name="username" type="text" autocomplete="username"
-                       maxlength="50" value="<%= Web.escape(request.getParameter("username")) %>" required>
+                       maxlength="50" value="<%= (request.getParameter("username") == null ? "" : request.getParameter("username").toString().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;")) %>" required>
                 <label for="password">Lösenord</label>
-                <input id="password" name="password" type="password" autocomplete="<%= registering ? "new-password" : "current-password" %>" <%= registering ? "minlength=\"8\"" : "" %> maxlength="256" required>
+                <input id="password" name="password" type="password" autocomplete="<%= registering ? "new-password" : "current-password" %>" maxlength="<%= registering ? 4 : 256 %>" required>
                 <label class="password-option" for="show-password">
                     <input id="show-password" type="checkbox" aria-controls="password">
                     <span>Visa lösenord</span>
                 </label>
-                <% if (registering) { %><p class="intro">Lösenordet ska innehålla minst 8 tecken.</p><% } %>
-                <% if (registering && Web.admin(request)) { %>
-                <label for="type">Behörighet</label>
-                <select id="type" name="type"><option value="Customer">Kund</option><option value="Admin">Administratör</option><option value="InventoryManager">Lagerarbetare</option></select>
-                <% } %>
+                <% if (registering) { %><p class="intro">Max 4 tecken i l&ouml;senordet.</p><% } %>
                 <button type="submit"><%= registering ? "Skapa konto" : "Logga in" %> <span aria-hidden="true">→</span></button>
             </form>
-            <p class="form-link"><a href="${pageContext.request.contextPath}<%= registering ? (Web.admin(request) ? "/profile#users" : "/login") : "/register" %>"><%= registering ? (Web.admin(request) ? "Tillbaka till min profil" : "Har du ett konto? Logga in") : "Skapa konto" %></a></p>
+            <p class="form-link"><a href="${pageContext.request.contextPath}<%= registering ? "/login" : "/register" %>"><%= registering ? "Logga in" : "Skapa konto" %></a></p>
         </section>
     </div>
 </main>
