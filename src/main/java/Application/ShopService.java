@@ -124,7 +124,7 @@ public class ShopService {
             return -1;
         }
         Cart cart = getCart(userID);
-        if (cart.getProducts() == null) {
+        if (cart.getProducts() == null || cart.getProducts().isEmpty()) {
             return -1;
         }
         return orderDAO.order(user, cart);
