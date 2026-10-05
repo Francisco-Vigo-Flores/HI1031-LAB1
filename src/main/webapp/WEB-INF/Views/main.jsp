@@ -72,6 +72,10 @@
                     headers: { 'X-Requested-With': 'fetch' },
                     body: new URLSearchParams(new FormData(form))
                 });
+                if (response.status === 409) {
+                    status.textContent = 'Det finns inte fler av varan i lager att lägga till.';
+                    return;
+                }
                 if (!response.ok) throw new Error('Purchase failed');
                 document.getElementById('cart-count').textContent = response.headers.get('X-Cart-Count');
                 card.classList.add('purchase-added');

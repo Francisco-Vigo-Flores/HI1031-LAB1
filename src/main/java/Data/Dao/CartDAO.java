@@ -31,12 +31,16 @@ public class CartDAO {
     }
 
     public boolean addProduct(int productID, int cartID, int quantity) {
-        String addSameProductsQuery = "INSERT INTO CartProducts (CartID, ProductID, Quantity) VALUES (?,?,?) " +
-                "ON CONFLICT (CartID, ProductID) DO UPDATE SET Quantity = CartProducts.Quantity+EXCLUDED.Quantity";
+        String addSameProductsQuery = "INSERT INTO CartProducts (CartID, ProductID, Quantity) " +
+                "SELECT ?, ID, ? FROM Product WHERE ID = ? AND Quantity >= ? " +
+                "ON CONFLICT (CartID, ProductID) DO UPDATE SET Quantity = CartProducts.Quantity+EXCLUDED.Quantity " +
+                "WHERE CartProducts.Quantity <= " +
+                "(SELECT Quantity FROM Product WHERE ID = EXCLUDED.ProductID) - EXCLUDED.Quantity";
         try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(addSameProductsQuery)) {
             stmt.setInt(1, cartID);
-            stmt.setInt(2, productID);
-            stmt.setInt(3, quantity);
+            stmt.setInt(2, quantity);
+            stmt.setInt(3, productID);
+            stmt.setInt(4, quantity);
             if (stmt.executeUpdate() == 1) {
                 System.out.println("Successfully added " + quantity + "to cart");
                 return true;
