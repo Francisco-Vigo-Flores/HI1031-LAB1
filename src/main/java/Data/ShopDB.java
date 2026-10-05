@@ -18,9 +18,9 @@ public class ShopDB {
     }
 
     public ShopDB() {
-        this.databaseURL = "jdbc:postgresql://localhost:5432/HI1031-LAB1";
+        this.databaseURL = "jdbc:postgresql://localhost:5432/postgres";
         this.databaseUser = "postgres";
-        this.databasePassword = "password";
+        this.databasePassword = "0303";
     }
 
     public Connection getConnection() {

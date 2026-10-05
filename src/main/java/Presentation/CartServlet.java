@@ -42,6 +42,17 @@ public class CartServlet extends HttpServlet {
         }
 
         String action = request.getParameter("action");
+        if ("checkout".equals(action)) {
+            int orderId = shopService.placeOrder(user.getId());
+            if (orderId == -1) {
+                response.sendRedirect(request.getContextPath() + "/cart?checkout=failed");
+            } else {
+                boolean cleared = shopService.clearCart(user.getId());
+                response.sendRedirect(request.getContextPath() + "/orders?placed=" + orderId
+                        + (cleared ? "" : "&cartClearFailed=true"));
+            }
+            return;
+        }
         boolean changed;
         if ("clear".equals(action)) {
             changed = shopService.clearCart(user.getId());
@@ -79,6 +90,12 @@ public class CartServlet extends HttpServlet {
             return;
         }
 
-        response.sendRedirect(request.getContextPath() + "/cart");
+        if ("fetch".equals(request.getHeader("X-Requested-With"))) {
+            response.setHeader("X-Cart-Count", String.valueOf(shopService.getCart(user.getId()).getProductCount()));
+            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            return;
+        }
+        response.sendRedirect(request.getContextPath() +
+                (action == null || "add".equals(action) ? "/products" : "/cart"));
     }
 }

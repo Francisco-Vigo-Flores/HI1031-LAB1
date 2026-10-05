@@ -23,6 +23,7 @@
             <div class="empty-state"><h2>Inga produkter ännu</h2><p>Kom tillbaka lite senare.</p></div>
         </c:when>
     </c:choose>
+    <p id="purchase-status" role="status" aria-live="polite"></p>
     <div class="product-grid">
         <c:forEach var="product" items="${products}">
             <article class="product-card">
@@ -30,6 +31,8 @@
                     <span class="category"><c:out value="${product.category}"/></span>
                 </div>
                 <h2><c:out value="${product.name}"/></h2>
+                <p><c:out value="${product.desc}"/></p>
+                <p>Antal i lager: <strong>${product.quantity}</strong></p>
                 <div class="product-bottom">
                     <p class="price">${product.cost} kr</p>
                     <c:choose>
@@ -49,5 +52,40 @@
         </c:forEach>
     </div>
 </main>
+<script>
+    document.querySelectorAll('.product-card form').forEach(form => {
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            const button = form.querySelector('button');
+            if (button.disabled) return;
+            const card = form.closest('.product-card');
+            const status = document.getElementById('purchase-status');
+            button.disabled = true;
+            button.textContent = 'Lägger till…';
+            card.classList.remove('purchase-added');
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'fetch' },
+                    body: new URLSearchParams(new FormData(form))
+                });
+                if (!response.ok) throw new Error('Purchase failed');
+                document.getElementById('cart-count').textContent = response.headers.get('X-Cart-Count');
+                card.classList.add('purchase-added');
+                button.textContent = 'Tillagd ✓';
+                status.textContent = card.querySelector('h2').textContent + ' har lagts i varukorgen.';
+            } catch (error) {
+                button.textContent = 'Försök igen';
+                status.textContent = 'Kunde inte lägga till varan. Försök igen.';
+            } finally {
+                setTimeout(() => {
+                    card.classList.remove('purchase-added');
+                    button.textContent = 'Lägg i varukorg';
+                    button.disabled = false;
+                }, 1200);
+            }
+        });
+    });
+</script>
 </body>
 </html>

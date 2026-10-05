@@ -8,6 +8,9 @@
     <a class="brand" href="${pageContext.request.contextPath}/products"><span>Webbshop .</span></a>
     <nav aria-label="Huvudmeny">
         <a class="nav-button" aria-current="${currentPage == '/products' ? 'page' : 'false'}" href="${pageContext.request.contextPath}/products">Produkter</a>
+        <c:if test="${loggedIn}">
+            <a class="nav-button" aria-current="${currentPage == '/orders' ? 'page' : 'false'}" href="${pageContext.request.contextPath}/orders">Beställningar</a>
+        </c:if>
         <c:if test="${isStaff}">
             <a class="nav-button" aria-current="${currentPage == '/inventory' ? 'page' : 'false'}" href="${pageContext.request.contextPath}/inventory">Lager</a>
         </c:if>
