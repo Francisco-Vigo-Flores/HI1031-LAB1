@@ -1,7 +1,6 @@
 package Application.Entities;
 
 
-// for login
 public class User {
     private int id;
     private UserType type;

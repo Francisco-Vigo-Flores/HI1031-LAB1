@@ -2,7 +2,6 @@ package Data.Dao;
 
 import Application.Entities.Product;
 import Data.ShopDB;
-
 import java.sql.*;
 import java.util.ArrayList;
 
