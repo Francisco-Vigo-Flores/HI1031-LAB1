@@ -30,4 +30,30 @@ public class OrdersServlet extends HttpServlet {
         request.setAttribute("cartCount", shopService.getCart(user.getId()).getProductCount());
         request.getRequestDispatcher("/WEB-INF/Views/orders.jsp").forward(request, response);
     }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession(false);
+        User user = session == null ? null : (User) session.getAttribute("user");
+        if (user == null) {
+            response.sendError(401);
+            return;
+        }
+        if (user.getType() != UserType.Admin && user.getType() != UserType.InventoryManager) {
+            response.sendError(403);
+            return;
+        }
+        int orderId;
+        try {
+            orderId = Integer.parseInt(request.getParameter("orderId"));
+            if (orderId <= 0) {
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            response.sendError(400);
+            return;
+        }
+        boolean completed = shopService.completeOrder(orderId);
+        response.sendRedirect(request.getContextPath() + "/orders?completed=" + completed);
+    }
 }

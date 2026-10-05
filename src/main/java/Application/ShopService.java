@@ -98,6 +98,10 @@ public class ShopService {
     }
 
     public boolean addToCart(int userID, int productID, int quantity) {
+        Product product = getProduct(productID);
+        if (product == null || quantity <= 0 || product.getQuantity() < quantity) {
+            return false;
+        }
         int cartID = getOrCreateCartId(userID);
         return cartDAO.addProduct(productID, cartID, quantity);
     }

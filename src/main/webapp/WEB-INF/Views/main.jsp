@@ -36,6 +36,9 @@
                 <div class="product-bottom">
                     <p class="price">${product.cost} kr</p>
                     <c:choose>
+                        <c:when test="${product.quantity <= 0}">
+                            <span class="category">Slut i lager</span>
+                        </c:when>
                         <c:when test="${loggedIn}">
                             <form method="post" action="${pageContext.request.contextPath}/cart">
                                 <input type="hidden" name="csrfToken" value="${csrfToken}">

@@ -23,6 +23,12 @@
     <c:if test="${param.cartClearFailed == 'true'}">
         <p class="notice error" role="alert">Beställningen är sparad, men varukorgen kunde inte tömmas. Töm varukorgen innan du handlar igen.</p>
     </c:if>
+    <c:if test="${param.completed == 'true'}">
+        <p class="notice success" role="status">Beställningen har slutförts.</p>
+    </c:if>
+    <c:if test="${param.completed == 'false'}">
+        <p class="notice error" role="alert">Beställningen kunde inte slutföras. Försök igen.</p>
+    </c:if>
     <c:choose>
         <c:when test="${orders == null}">
             <p class="notice error" role="alert">Beställningarna kunde inte hämtas. Försök igen senare.</p>
@@ -48,6 +54,13 @@
                             <c:set var="orderTotal" value="${orderTotal + item.productCost}"/>
                         </c:forEach>
                         <div class="product-bottom"><p class="price">Totalt: <fmt:formatNumber value="${orderTotal}" minFractionDigits="2" maxFractionDigits="2" groupingUsed="false"/> kr</p></div>
+                        <c:if test="${isStaff and not order.complete}">
+                            <form class="form-actions" method="post" action="${pageContext.request.contextPath}/orders">
+                                <input type="hidden" name="csrfToken" value="${csrfToken}">
+                                <input type="hidden" name="orderId" value="${order.id}">
+                                <button type="submit">Slutför beställning</button>
+                            </form>
+                        </c:if>
                     </article>
                 </c:forEach>
             </div>
