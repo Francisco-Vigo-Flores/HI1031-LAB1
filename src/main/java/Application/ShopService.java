@@ -1,9 +1,6 @@
 package Application;
 
-import Application.Entities.Cart;
-import Application.Entities.CartProduct;
-import Application.Entities.Product;
-import Application.Entities.User;
+import Application.Entities.*;
 import Data.Dao.CartDAO;
 import Data.Dao.OrderDAO;
 import Data.Dao.ProductDAO;
@@ -34,7 +31,11 @@ public class ShopService {
     }
 
     public boolean register(String username, String name, String password) {
-        if (username == null || name == null || password == null) {
+        return register(username, name, password, UserType.Customer);
+    }
+
+    public boolean register(String username, String name, String password, UserType type) {
+        if (username == null || name == null || password == null || type == null) {
             return false;
         }
         if (username.isEmpty() || username.length() > 50
@@ -45,7 +46,7 @@ public class ShopService {
         if (userDAO.usernameTaken(username)) {
             return false;
         }
-        int userID = userDAO.addUser(username, name, password);
+        int userID = userDAO.addUser(username, name, password, type);
         if (userID == -1) {
             return false;
         }
@@ -58,6 +59,17 @@ public class ShopService {
 
     public List<User> getAllUsers() {
         return userDAO.getAllUsers();
+    }
+
+    public boolean updateUser(int userID, String name, UserType type) {
+        if (name == null || name.trim().isEmpty() || name.length() > 50 || type == null) {
+            return false;
+        }
+        return userDAO.updateUser(userID, name, type);
+    }
+
+    public boolean deleteUser(int userID) {
+        return userDAO.deleteUser(userID);
     }
 
     public List<Product> getAllProducts() {
@@ -122,11 +134,11 @@ public class ShopService {
         return orderDAO.completeOrder(orderID);
     }
 
-    public ArrayList<Integer> getOrderIdsByUserId(int userID) {
-        return orderDAO.getOrderIdsByUserId(userID);
+    public ArrayList<Order> getOrdersByUserId(int userID) {
+        return orderDAO.getOrdersByUserId(userID);
     }
 
-    public ArrayList<Integer> getIncompleteOrderIds() {
-        return orderDAO.getIncompleteOrderIds();
+    public ArrayList<Order> getOrders() {
+        return orderDAO.getOrders();
     }
 }

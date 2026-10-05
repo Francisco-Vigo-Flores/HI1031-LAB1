@@ -76,33 +76,96 @@ public class OrderDAO {
     }
 
     public ArrayList<CartProduct> getOrderProducts(int orderId) {
+        try (Connection connection = this.shopDB.getConnection()) {
+            return getOrderProducts(connection, orderId);
+        } catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            System.out.println("Could not load products for order " + orderId);
+            return null;
+        }
+    }
+
+    private ArrayList<CartProduct> getOrderProducts(Connection connection, int orderId) throws SQLException {
         String query = "SELECT p.ID, p.NAME, p.CATEGORY, p.DESCRIPTION, p.QUANTITY AS \"Amount in stock\", " +
                 "op.Quantity AS \"Amount ordered\", op.UnitPrice " +
                 "FROM OrderProducts op JOIN Product p ON p.ID = op.ProductID " +
                 "WHERE op.OrderID = ?";
         ArrayList<CartProduct> products = new ArrayList<>();
 
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(query)) {
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, orderId);
-            ResultSet results = stmt.executeQuery();
-            while (results.next()) {
-                Product product = new Product(
-                        results.getInt("ID"),
-                        results.getString("NAME"),
-                        results.getDouble("UnitPrice"),
-                        results.getString("CATEGORY"),
-                        results.getString("DESCRIPTION"),
-                        results.getInt("Amount in stock")
-                );
-                products.add(new CartProduct(results.getInt("Amount ordered"), product));
+            try (ResultSet results = stmt.executeQuery()) {
+                while (results.next()) {
+                    Product product = new Product(
+                            results.getInt("ID"),
+                            results.getString("NAME"),
+                            results.getDouble("UnitPrice"),
+                            results.getString("CATEGORY"),
+                            results.getString("DESCRIPTION"),
+                            results.getInt("Amount in stock")
+                    );
+                    products.add(new CartProduct(results.getInt("Amount ordered"), product));
+                }
             }
             return products;
         }
-        catch (SQLException e) {
+    }
+
+    public ArrayList<Order> getOrdersByUserId(int userId) {
+        String query = "SELECT o.ID, o.IsComplete, u.ID AS UserID, u.TYPE, u.NAME, u.USERNAME " +
+                "FROM Orders o JOIN \"User\" u ON u.ID = o.UserID " +
+                "WHERE o.UserID = ? " +
+                "ORDER BY o.IsComplete, o.ID";
+        ArrayList<Order> orders = new ArrayList<>();
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            try (ResultSet results = stmt.executeQuery()) {
+                while (results.next()) {
+                    User user = new User(
+                            results.getInt("UserID"),
+                            UserType.valueOf(results.getString("TYPE")),
+                            results.getString("NAME"),
+                            results.getString("USERNAME")
+                    );
+                    int orderId = results.getInt("ID");
+                    orders.add(new Order(orderId, results.getBoolean("IsComplete"),
+                            user, getOrderProducts(connection, orderId)));
+                }
+            }
+            return orders;
+        } catch (SQLException e) {
             ShopDB.printSqlErrors(e);
-            System.out.println("Could not load products for order " + orderId);
+            System.out.println("Could not load orders for user " + userId);
+            return null;
         }
-        return null;
+    }
+
+    public ArrayList<Order> getOrders() {
+        String query = "SELECT o.ID, o.IsComplete, u.ID AS UserID, u.TYPE, u.NAME, u.USERNAME " +
+                "FROM Orders o JOIN \"User\" u ON u.ID = o.UserID " +
+                "ORDER BY o.IsComplete, o.ID";
+        ArrayList<Order> orders = new ArrayList<>();
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet results = stmt.executeQuery()) {
+            while (results.next()) {
+                User user = new User(
+                        results.getInt("UserID"),
+                        UserType.valueOf(results.getString("TYPE")),
+                        results.getString("NAME"),
+                        results.getString("USERNAME")
+                );
+                int orderId = results.getInt("ID");
+                orders.add(new Order(orderId, results.getBoolean("IsComplete"),
+                        user, getOrderProducts(connection, orderId)));
+            }
+            return orders;
+        } catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            System.out.println("Could not load orders");
+            return null;
+        }
     }
 
     public boolean completeOrder(int orderId) {
@@ -119,40 +182,5 @@ public class OrderDAO {
         }
     }
 
-    public ArrayList<Integer> getOrderIdsByUserId(int userId) {
-        String query = "SELECT ID FROM Orders WHERE UserID = ?";
-        ArrayList<Integer> orderIds = new ArrayList<>();
 
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(query)) {
-            stmt.setInt(1, userId);
-            ResultSet results = stmt.executeQuery();
-            while (results.next()) {
-                orderIds.add(results.getInt("ID"));
-            }
-            return orderIds;
-        }
-        catch (SQLException e) {
-            ShopDB.printSqlErrors(e);
-            System.out.println("Could not load orders for user " + userId);
-            return null;
-        }
-    }
-
-    public ArrayList<Integer> getIncompleteOrderIds() {
-        String query = "SELECT ID FROM Orders WHERE IsComplete = FALSE";
-        ArrayList<Integer> orderIds = new ArrayList<>();
-
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(query)) {
-            ResultSet results = stmt.executeQuery();
-            while (results.next()) {
-                orderIds.add(results.getInt("ID"));
-            }
-            return orderIds;
-        }
-        catch (SQLException e) {
-            ShopDB.printSqlErrors(e);
-            System.out.println("Could not load orders");
-            return null;
-        }
-    }
 }

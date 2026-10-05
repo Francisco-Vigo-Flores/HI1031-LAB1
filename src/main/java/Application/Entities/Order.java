@@ -15,6 +15,13 @@ public class Order {
         this.isComplete = false;
     }
 
+    public Order(int id, boolean isComplete, User user, List<CartProduct> products) {
+        this.id = id;
+        this.isComplete = isComplete;
+        this.user = user;
+        this.products = new ArrayList<>(products);
+    }
+
 
     public int getId() {
         return id;

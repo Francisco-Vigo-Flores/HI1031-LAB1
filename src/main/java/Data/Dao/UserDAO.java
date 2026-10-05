@@ -16,13 +16,18 @@ public class UserDAO {
         this.shopDB = new ShopDB();
     }
     public int addUser(String username, String name, String password){
+        return addUser(username, name, password, UserType.Customer);
+    }
+
+    public int addUser(String username, String name, String password, UserType type) {
         String addUserQuery =
-                "INSERT INTO \"User\" (NAME, USERNAME, PASSWORD, TYPE) VALUES (?, ?, ?, 'Customer') RETURNING ID";
+                "INSERT INTO \"User\" (NAME, USERNAME, PASSWORD, TYPE) VALUES (?, ?, ?, ?) RETURNING ID";
 
         try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(addUserQuery)){
             stmt.setString(1, name);
             stmt.setString(2, username);
             stmt.setString(3, password);
+            stmt.setString(4, type.name());
             ResultSet queryResults = stmt.executeQuery();
             if (queryResults.next()) {
                 System.out.println("User added successfully");
@@ -35,6 +40,43 @@ public class UserDAO {
                 System.out.println("Could not add user to DB");
         }
         return -1;
+    }
+
+    public boolean updateUser(int userID, String name, UserType type) {
+        String updateUserQuery = "UPDATE \"User\" SET NAME = ?, TYPE = ? WHERE ID = ?";
+        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(updateUserQuery)) {
+            stmt.setString(1, name);
+            stmt.setString(2, type.name());
+            stmt.setInt(3, userID);
+            return stmt.executeUpdate() == 1;
+        }
+        catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            System.out.println("Could not update user " + userID);
+        }
+        return false;
+    }
+
+    public boolean deleteUser(int userID) {
+        String deleteProducts = "DELETE FROM CartProducts WHERE CartID IN " +
+                "(SELECT ID FROM Cart WHERE UserID = ?)";
+        String deleteCart = "DELETE FROM Cart WHERE UserID = ?";
+        String deleteUser = "DELETE FROM \"User\" WHERE ID = ?";
+        try (PreparedStatement productsStmt = this.shopDB.getConnection().prepareStatement(deleteProducts);
+             PreparedStatement cartStmt = this.shopDB.getConnection().prepareStatement(deleteCart);
+             PreparedStatement userStmt = this.shopDB.getConnection().prepareStatement(deleteUser)) {
+            productsStmt.setInt(1, userID);
+            productsStmt.executeUpdate();
+            cartStmt.setInt(1, userID);
+            cartStmt.executeUpdate();
+            userStmt.setInt(1, userID);
+            return userStmt.executeUpdate() == 1;
+        }
+        catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            System.out.println("Could not delete user " + userID);
+        }
+        return false;
     }
 
     public User getUser(int userID) {
