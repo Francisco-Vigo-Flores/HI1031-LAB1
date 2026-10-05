@@ -63,6 +63,7 @@
             if (button.disabled) return;
             const card = form.closest('.product-card');
             const status = document.getElementById('purchase-status');
+            status.textContent = '';
             button.disabled = true;
             button.textContent = 'Lägger till…';
             card.classList.remove('purchase-added');
@@ -72,6 +73,10 @@
                     headers: { 'X-Requested-With': 'fetch' },
                     body: new URLSearchParams(new FormData(form))
                 });
+                if (response.redirected) {
+                    window.location.assign(response.url);
+                    return;
+                }
                 if (response.status === 409) {
                     status.textContent = 'Det finns inte fler av varan i lager att lägga till.';
                     return;
@@ -82,8 +87,7 @@
                 button.textContent = 'Tillagd ✓';
                 status.textContent = card.querySelector('h2').textContent + ' har lagts i varukorgen.';
             } catch (error) {
-                button.textContent = 'Försök igen';
-                status.textContent = 'Kunde inte lägga till varan. Försök igen.';
+                console.error('Could not add product to cart', error);
             } finally {
                 setTimeout(() => {
                     card.classList.remove('purchase-added');

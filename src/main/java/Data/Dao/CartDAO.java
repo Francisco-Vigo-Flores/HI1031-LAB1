@@ -51,7 +51,7 @@ public class CartDAO {
         }
         catch (SQLException e) {
             ShopDB.printSqlErrors(e);
-            System.out.println("Could not add product to cart");
+            throw new IllegalStateException("Could not add product to cart", e);
         }
         return false;
     }

@@ -20,9 +20,6 @@
     <c:if test="${not empty param.placed}">
         <p class="notice success" role="status">Din beställning har lagts.</p>
     </c:if>
-    <c:if test="${param.cartClearFailed == 'true'}">
-        <p class="notice error" role="alert">Beställningen är sparad, men varukorgen kunde inte tömmas. Töm varukorgen innan du handlar igen.</p>
-    </c:if>
     <c:if test="${param.completed == 'true'}">
         <p class="notice success" role="status">Beställningen har slutförts.</p>
     </c:if>
@@ -47,13 +44,10 @@
                         <div class="product-topline"><span class="role-badge">${order.complete ? 'Slutförd' : 'Pågående'}</span></div>
                         <h2>Beställning #${order.id}</h2>
                         <c:if test="${isStaff}"><p>Kund: <c:out value="${order.user.name}"/></p></c:if>
-                        <c:set var="orderTotal" value="${0}"/>
                         <c:forEach var="item" items="${order.products}">
                             <p><c:out value="${item.product.name}"/> × ${item.amountInCart}
                                 — <fmt:formatNumber value="${item.productCost}" minFractionDigits="2" maxFractionDigits="2" groupingUsed="false"/> kr</p>
-                            <c:set var="orderTotal" value="${orderTotal + item.productCost}"/>
                         </c:forEach>
-                        <div class="product-bottom"><p class="price">Totalt: <fmt:formatNumber value="${orderTotal}" minFractionDigits="2" maxFractionDigits="2" groupingUsed="false"/> kr</p></div>
                         <c:if test="${isStaff and not order.complete}">
                             <form class="form-actions" method="post" action="${pageContext.request.contextPath}/orders">
                                 <input type="hidden" name="csrfToken" value="${csrfToken}">

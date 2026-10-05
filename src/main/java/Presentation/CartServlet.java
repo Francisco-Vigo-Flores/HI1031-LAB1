@@ -37,65 +37,45 @@ public class CartServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         User user = session == null ? null : (User) session.getAttribute("user");
         if (user == null) {
-            response.sendError(401);
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
         String action = request.getParameter("action");
-        if ("checkout".equals(action)) {
-            int orderId = shopService.placeOrder(user.getId());
-            if (orderId == -1) {
-                response.sendRedirect(request.getContextPath() + "/cart?checkout=failed");
-            } else {
-                boolean cleared = shopService.clearCart(user.getId());
-                response.sendRedirect(request.getContextPath() + "/orders?placed=" + orderId
-                        + (cleared ? "" : "&cartClearFailed=true"));
+        if (action == null) action = "add";
+        try {
+            switch (action) {
+                case "checkout":
+                    int orderId = shopService.placeOrder(user.getId());
+                    response.sendRedirect(request.getContextPath() +
+                            (orderId == -1 ? "/cart?checkout=failed" : "/orders?placed=" + orderId));
+                    return;
+                case "clear":
+                    shopService.clearCart(user.getId());
+                    break;
+                case "remove":
+                    shopService.removeFromCart(user.getId(),
+                            Integer.parseInt(request.getParameter("productId")), 1);
+                    break;
+                case "add":
+                    boolean added = shopService.addToCart(user.getId(),
+                            Integer.parseInt(request.getParameter("productId")));
+                    if (!added) {
+                        response.setStatus(HttpServletResponse.SC_CONFLICT);
+                        return;
+                    }
+                    if ("fetch".equals(request.getHeader("X-Requested-With"))) {
+                        response.setHeader("X-Cart-Count",
+                                String.valueOf(shopService.getCart(user.getId()).getProductCount()));
+                        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                        return;
+                    }
+                    response.sendRedirect(request.getContextPath() + "/products");
+                    return;
             }
-            return;
+        } catch (IOException | NumberFormatException e) {
+            throw new RuntimeException(e);
         }
-        boolean changed;
-        if ("clear".equals(action)) {
-            changed = shopService.clearCart(user.getId());
-        } else {
-            if (action != null && !"add".equals(action) && !"remove".equals(action)) {
-                response.sendError(400);
-                return;
-            }
-
-            int productId;
-            try {
-                productId = Integer.parseInt(request.getParameter("productId"));
-                if (productId <= 0) {
-                    throw new NumberFormatException();
-                }
-            } catch (NumberFormatException e) {
-                response.sendError(400);
-                return;
-            }
-
-            if (shopService.getProduct(productId) == null) {
-                response.sendError(404);
-                return;
-            }
-
-            if ("remove".equals(action)) {
-                changed = shopService.removeFromCart(user.getId(), productId, 1);
-            } else {
-                changed = shopService.addToCart(user.getId(), productId);
-            }
-        }
-
-        if (!changed) {
-            response.sendError(409);
-            return;
-        }
-
-        if ("fetch".equals(request.getHeader("X-Requested-With"))) {
-            response.setHeader("X-Cart-Count", String.valueOf(shopService.getCart(user.getId()).getProductCount()));
-            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-            return;
-        }
-        response.sendRedirect(request.getContextPath() +
-                (action == null || "add".equals(action) ? "/products" : "/cart"));
+        response.sendRedirect(request.getContextPath() + "/cart");
     }
 }

@@ -80,6 +80,9 @@ public class ShopService {
     }
 
     public boolean updateStock(int productID, int quantity) {
+        if (productID <= 0 || quantity < 0) {
+            return false;
+        }
         return productDAO.updateStock(productID, quantity);
     }
 
@@ -131,7 +134,7 @@ public class ShopService {
 
     public boolean addToCart(int userID, int productID, int quantity) {
         Product product = getProduct(productID);
-        if (product.getQuantity() < quantity) {
+        if (product == null || quantity <= 0 || product.getQuantity() < quantity) {
             return false;
         }
         int cartID = getOrCreateCartId(userID);
@@ -160,7 +163,11 @@ public class ShopService {
         if (cart.getProducts().isEmpty()) {
             return -1;
         }
-        return orderDAO.order(user, cart);
+        int orderId = orderDAO.order(user, cart);
+        if (orderId != -1) {
+            clearCart(userID);
+        }
+        return orderId;
     }
 
     public ArrayList<CartProduct> getOrderProducts(int orderID) {

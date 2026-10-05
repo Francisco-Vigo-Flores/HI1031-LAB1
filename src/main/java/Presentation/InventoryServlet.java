@@ -19,27 +19,19 @@ public class InventoryServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        User user = session == null ? null : (User) session.getAttribute("user");
-        if (user == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
-        if (user.getType() != UserType.Admin && user.getType() != UserType.InventoryManager) {
-            response.sendError(403);
-            return;
-        }
+        User user = requireStaff(request, response);
+        if (user == null) return;
         String id = request.getParameter("productId");
         if (id != null && request.getAttribute("error") == null) {
             try {
                 Product product = shopService.getProduct(Integer.parseInt(id));
                 if (product == null) {
-                    response.sendError(404);
+                    response.sendRedirect(request.getContextPath() + "/inventory");
                     return;
                 }
                 request.setAttribute("product", product);
             } catch (NumberFormatException e) {
-                response.sendError(400);
+                response.sendRedirect(request.getContextPath() + "/inventory");
                 return;
             }
         }
@@ -52,16 +44,8 @@ public class InventoryServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        User user = session == null ? null : (User) session.getAttribute("user");
-        if (user == null) {
-            response.sendError(401);
-            return;
-        }
-        if (user.getType() != UserType.Admin && user.getType() != UserType.InventoryManager) {
-            response.sendError(403);
-            return;
-        }
+        User user = requireStaff(request, response);
+        if (user == null) return;
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
         boolean saved = false;
@@ -80,10 +64,7 @@ public class InventoryServlet extends HttpServlet {
             } else if (action == null || "stock".equals(action)) {
                 int productId = Integer.parseInt(request.getParameter("productId"));
                 int quantity = Integer.parseInt(request.getParameter("quantity"));
-                if (productId > 0 && quantity >= 0) saved = shopService.updateStock(productId, quantity);
-            } else {
-                response.sendError(400);
-                return;
+                saved = shopService.updateStock(productId, quantity);
             }
         } catch (NumberFormatException e) {
             saved = false;
@@ -94,5 +75,15 @@ public class InventoryServlet extends HttpServlet {
         }
         request.setAttribute("error", "Kunde inte spara. Kontrollera fälten och försök igen.");
         doGet(request, response);
+    }
+
+    private User requireStaff(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession(false);
+        User user = session == null ? null : (User) session.getAttribute("user");
+        if (user != null && (user.getType() == UserType.Admin || user.getType() == UserType.InventoryManager)) {
+            return user;
+        }
+        response.sendRedirect(request.getContextPath() + (user == null ? "/login" : "/products"));
+        return null;
     }
 }
