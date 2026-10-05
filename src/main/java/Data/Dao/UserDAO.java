@@ -27,7 +27,7 @@ public class UserDAO {
             stmt.setString(1, name);
             stmt.setString(2, username);
             stmt.setString(3, password);
-            stmt.setString(4, type.name());
+            stmt.setObject(4, type.name(), java.sql.Types.OTHER);
             ResultSet queryResults = stmt.executeQuery();
             if (queryResults.next()) {
                 System.out.println("User added successfully");
@@ -46,7 +46,7 @@ public class UserDAO {
         String updateUserQuery = "UPDATE \"User\" SET NAME = ?, TYPE = ? WHERE ID = ?";
         try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(updateUserQuery)) {
             stmt.setString(1, name);
-            stmt.setString(2, type.name());
+            stmt.setObject(2, type.name(), java.sql.Types.OTHER);
             stmt.setInt(3, userID);
             return stmt.executeUpdate() == 1;
         }
