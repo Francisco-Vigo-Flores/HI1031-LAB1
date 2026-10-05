@@ -58,7 +58,7 @@
                             <form class="form-actions" method="post" action="${pageContext.request.contextPath}/orders">
                                 <input type="hidden" name="csrfToken" value="${csrfToken}">
                                 <input type="hidden" name="orderId" value="${order.id}">
-                                <button type="submit">Slutför beställning</button>
+                                <button type="submit">Packa / slutför beställning</button>
                             </form>
                         </c:if>
                     </article>

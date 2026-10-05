@@ -51,6 +51,51 @@ public class ProductDAO {
         return null;
     }
 
+    public boolean updateProduct(int id, String name, double cost, String category, String desc, int quantity) {
+        String sql = "UPDATE Product SET Name=?, Cost=?, Category=?, Description=?, Quantity=? WHERE ID=?";
+        try (Connection connection = shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            stmt.setDouble(2, cost);
+            stmt.setString(3, category);
+            stmt.setString(4, desc);
+            stmt.setInt(5, quantity);
+            stmt.setInt(6, id);
+            return stmt.executeUpdate() == 1;
+        } catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            return false;
+        }
+    }
+
+    public ArrayList<String> getCategories() {
+        ArrayList<String> categories = new ArrayList<>();
+        try (Connection connection = shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement("SELECT DISTINCT Category FROM Product ORDER BY Category");
+             ResultSet results = stmt.executeQuery()) {
+            while (results.next()) {
+                categories.add(results.getString("Category"));
+            }
+            return categories;
+        } catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            return null;
+        }
+    }
+
+    public boolean saveCategory(String oldName, String name) {
+        String sql = "UPDATE Product SET Category=? WHERE Category=?";
+        try (Connection connection = shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            stmt.setString(2, oldName);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            return false;
+        }
+    }
+
     public ArrayList<Product> getAllProducts() {
         ArrayList<Product> products = new ArrayList<>();
         String allProductsQuery =

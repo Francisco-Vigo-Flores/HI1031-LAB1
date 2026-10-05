@@ -84,6 +84,25 @@ public class ShopService {
         return productDAO.updateStock(productID, quantity);
     }
 
+    public List<String> getCategories() {
+        return productDAO.getCategories();
+    }
+
+    public boolean saveCategory(String oldName, String name) {
+        if (oldName == null || oldName.trim().isEmpty()
+                || name == null || name.trim().isEmpty() || name.trim().length() > 50) return false;
+        return productDAO.saveCategory(oldName, name.trim());
+    }
+
+    public boolean saveProduct(int id, String name, double cost, String category, String desc, int quantity) {
+        if (id < 0 || name == null || name.trim().isEmpty() || name.trim().length() > 50
+                || desc == null || desc.trim().isEmpty() || desc.trim().length() > 100
+                || !Double.isFinite(cost) || cost < 0 || quantity < 0) return false;
+        if (category == null || category.trim().isEmpty() || category.trim().length() > 50) return false;
+        return id == 0 ? productDAO.addProduct(name.trim(), cost, category.trim(), desc.trim(), quantity)
+                : productDAO.updateProduct(id, name.trim(), cost, category.trim(), desc.trim(), quantity);
+    }
+
     private int getOrCreateCartId(int userID) {
         int cartID = cartDAO.getCartIdByUserId(userID);
         if (cartID == -1) {

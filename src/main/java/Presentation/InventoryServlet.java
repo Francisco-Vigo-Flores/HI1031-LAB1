@@ -1,6 +1,7 @@
 package Presentation;
 
 import Application.ShopService;
+import Application.Entities.Product;
 import Application.Entities.User;
 import Application.Entities.UserType;
 import jakarta.servlet.ServletException;
@@ -28,6 +29,21 @@ public class InventoryServlet extends HttpServlet {
             response.sendError(403);
             return;
         }
+        String id = request.getParameter("productId");
+        if (id != null && request.getAttribute("error") == null) {
+            try {
+                Product product = shopService.getProduct(Integer.parseInt(id));
+                if (product == null) {
+                    response.sendError(404);
+                    return;
+                }
+                request.setAttribute("product", product);
+            } catch (NumberFormatException e) {
+                response.sendError(400);
+                return;
+            }
+        }
+        request.setAttribute("categories", shopService.getCategories());
         request.setAttribute("currentPage", "/inventory");
         request.setAttribute("cartCount", shopService.getCart(user.getId()).getProductCount());
         request.setAttribute("products", shopService.getAllProducts());
@@ -46,20 +62,33 @@ public class InventoryServlet extends HttpServlet {
             response.sendError(403);
             return;
         }
+        request.setCharacterEncoding("UTF-8");
+        String action = request.getParameter("action");
+        boolean saved = false;
         try {
-            int productId = Integer.parseInt(request.getParameter("productId"));
-            int quantity = Integer.parseInt(request.getParameter("quantity"));
-            if (productId <= 0 || quantity < 0) {
-                throw new NumberFormatException();
-            }
-            if (shopService.updateStock(productId, quantity)) {
-                response.sendRedirect(request.getContextPath() + "/inventory?updated=true");
+            if ("category".equals(action)) {
+                saved = shopService.saveCategory(request.getParameter("oldName"), request.getParameter("name"));
+            } else if ("product".equals(action)) {
+                saved = shopService.saveProduct(Integer.parseInt(request.getParameter("id")),
+                        request.getParameter("name"), Double.parseDouble(request.getParameter("cost")),
+                        request.getParameter("category"), request.getParameter("desc"),
+                        Integer.parseInt(request.getParameter("quantity")));
+            } else if (action == null || "stock".equals(action)) {
+                int productId = Integer.parseInt(request.getParameter("productId"));
+                int quantity = Integer.parseInt(request.getParameter("quantity"));
+                if (productId > 0 && quantity >= 0) saved = shopService.updateStock(productId, quantity);
+            } else {
+                response.sendError(400);
                 return;
             }
-            request.setAttribute("error", "Lagersaldot kunde inte sparas. Försök igen.");
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "Ange ett giltigt antal som är minst 0.");
+            saved = false;
         }
+        if (saved) {
+            response.sendRedirect(request.getContextPath() + "/inventory?updated=true");
+            return;
+        }
+        request.setAttribute("error", "Kunde inte spara. Kontrollera fälten och försök igen.");
         doGet(request, response);
     }
 }

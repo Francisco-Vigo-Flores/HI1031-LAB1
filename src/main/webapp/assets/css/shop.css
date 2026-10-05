@@ -430,11 +430,21 @@ h1 {
     box-shadow: none;
 }
 
-.stock-input {
+.stock-input, .catalog-form input, .catalog-form select, .catalog-form textarea {
     width: 100px;
     padding: 10px;
     border: 1px solid #dce3de;
     border-radius: 8px;
     font: inherit;
     color: inherit;
+}
+
+.catalog-form {
+    display: grid;
+    gap: 12px;
+}
+
+.catalog-form input, .catalog-form select, .catalog-form textarea {
+    width: 100%;
+    background: #fff;
 }
