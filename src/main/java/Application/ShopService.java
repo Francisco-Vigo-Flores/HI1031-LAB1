@@ -38,8 +38,7 @@ public class ShopService {
         if (username == null || name == null || password == null || type == null) {
             return false;
         }
-        if (username.isEmpty() || username.length() > 50
-                || name.isEmpty() || name.length() > 50
+        if (username.isEmpty() || username.length() > 50 || name.isEmpty() || name.length() > 50
                 || password.trim().isEmpty() || password.length() > 4) {
             return false;
         }
@@ -62,7 +61,7 @@ public class ShopService {
     }
 
     public boolean updateUser(int userID, String name, UserType type) {
-        if (name == null || name.trim().isEmpty() || name.length() > 50 || type == null) {
+        if (name == null || name.trim().isEmpty() || name.length() > 50 ) {
             return false;
         }
         return userDAO.updateUser(userID, name, type);
@@ -89,18 +88,32 @@ public class ShopService {
     }
 
     public boolean saveCategory(String oldName, String name) {
-        if (oldName == null || oldName.trim().isEmpty()
-                || name == null || name.trim().isEmpty() || name.trim().length() > 50) return false;
+        if (oldName == null || oldName.trim().isEmpty() || !hasText(name, 50)) {
+            return false;
+        }
         return productDAO.saveCategory(oldName, name.trim());
     }
 
-    public boolean saveProduct(int id, String name, double cost, String category, String desc, int quantity) {
-        if (id < 0 || name == null || name.trim().isEmpty() || name.trim().length() > 50
-                || desc == null || desc.trim().isEmpty() || desc.trim().length() > 100
-                || !Double.isFinite(cost) || cost < 0 || quantity < 0) return false;
-        if (category == null || category.trim().isEmpty() || category.trim().length() > 50) return false;
-        return id == 0 ? productDAO.addProduct(name.trim(), cost, category.trim(), desc.trim(), quantity)
-                : productDAO.updateProduct(id, name.trim(), cost, category.trim(), desc.trim(), quantity);
+    public boolean addProduct(String name, double cost, String category, String desc, int quantity) {
+        if (!validProductDetails(name, cost, category, desc, quantity)) {
+            return false;
+        }
+        return productDAO.addProduct(name.trim(), cost, category.trim(), desc.trim(), quantity);
+    }
+
+    public boolean updateProduct(int id, String name, double cost, String category, String desc, int quantity) {
+        if (id <= 0 || !validProductDetails(name, cost, category, desc, quantity)) {
+            return false;
+        }
+        return productDAO.updateProduct(id, name.trim(), cost, category.trim(), desc.trim(), quantity);
+    }
+
+    private boolean validProductDetails(String name, double cost, String category, String desc, int quantity) {
+        return cost > 0 && quantity >= 0 && hasText(name, 50) && hasText(category, 50) && hasText(desc, 100);
+    }
+
+    private boolean hasText(String value, int maxLength) {
+        return value != null && !value.trim().isEmpty() && value.trim().length() <= maxLength;
     }
 
     private int getOrCreateCartId(int userID) {
@@ -118,7 +131,7 @@ public class ShopService {
 
     public boolean addToCart(int userID, int productID, int quantity) {
         Product product = getProduct(productID);
-        if (product == null || quantity <= 0 || product.getQuantity() < quantity) {
+        if (product.getQuantity() < quantity) {
             return false;
         }
         int cartID = getOrCreateCartId(userID);
@@ -143,11 +156,8 @@ public class ShopService {
 
     public int placeOrder(int userID) {
         User user = userDAO.getUser(userID);
-        if (user == null) {
-            return -1;
-        }
         Cart cart = getCart(userID);
-        if (cart.getProducts() == null || cart.getProducts().isEmpty()) {
+        if (cart.getProducts().isEmpty()) {
             return -1;
         }
         return orderDAO.order(user, cart);

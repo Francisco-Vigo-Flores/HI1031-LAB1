@@ -16,7 +16,8 @@ public class ProductDAO {
     public boolean addProduct(String name, double cost, String category, String desc, int quantity) {
         String addProductQuery =
                 "INSERT INTO Product (NAME, COST, CATEGORY, DESCRIPTION, QUANTITY) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(addProductQuery)){
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(addProductQuery)){
             stmt.setString(1, name);
             stmt.setDouble(2, cost);
             stmt.setString(3, category);
@@ -36,7 +37,8 @@ public class ProductDAO {
     public Product getProduct(int productID) {
         String singleProductQuery =
                 "SELECT ID, NAME, COST,CATEGORY, DESCRIPTION, QUANTITY FROM PRODUCT WHERE PRODUCT.ID = ?";
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(singleProductQuery)){
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(singleProductQuery)){
             stmt.setInt(1, productID);
             ResultSet queryResults = stmt.executeQuery();
             if (!queryResults.next()) {
@@ -71,8 +73,8 @@ public class ProductDAO {
     public ArrayList<String> getCategories() {
         ArrayList<String> categories = new ArrayList<>();
         try (Connection connection = shopDB.getConnection();
-             PreparedStatement stmt = connection.prepareStatement("SELECT DISTINCT Category FROM Product ORDER BY Category");
-             ResultSet results = stmt.executeQuery()) {
+             PreparedStatement stmt = connection.prepareStatement("SELECT DISTINCT Category FROM Product ORDER BY Category")) {
+            ResultSet results = stmt.executeQuery();
             while (results.next()) {
                 categories.add(results.getString("Category"));
             }
@@ -100,7 +102,8 @@ public class ProductDAO {
         ArrayList<Product> products = new ArrayList<>();
         String allProductsQuery =
                 "SELECT ID, NAME, COST,CATEGORY, QUANTITY, DESCRIPTION FROM PRODUCT";
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(allProductsQuery)){
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(allProductsQuery)){
             ResultSet queryResults = stmt.executeQuery();
             while(queryResults.next()) {
                 products.add(mapProduct(queryResults));
@@ -142,7 +145,8 @@ public class ProductDAO {
     public boolean updateStock(int productID, int quantity) {
         String updateStockQuery = "UPDATE Product SET Quantity = ? WHERE ID = ?";
 
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(updateStockQuery)) {
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(updateStockQuery)) {
             stmt.setInt(1, quantity);
             stmt.setInt(2, productID);
             return stmt.executeUpdate() == 1;

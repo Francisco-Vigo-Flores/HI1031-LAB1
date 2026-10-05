@@ -42,12 +42,15 @@
         </c:forEach>
     </div>
     <c:if test="${categories == null}"><p class="notice error" role="alert">Kategorierna kunde inte hämtas.</p></c:if>
-    <c:set var="retryProduct" value="${not empty error and param.action == 'product'}"/>
+    <c:set var="retryProduct" value="${not empty error and (param.action == 'addProduct' or param.action == 'updateProduct')}"/>
+    <c:set var="editingProduct" value="${retryProduct ? param.action == 'updateProduct' : not empty product}"/>
     <section class="profile-card" id="product">
-        <h2>${not empty product or (retryProduct and param.id != '0') ? 'Redigera vara' : 'Ny vara'}</h2>
+        <h2>${editingProduct ? 'Redigera vara' : 'Ny vara'}</h2>
         <form class="catalog-form" method="post" action="${pageContext.request.contextPath}/inventory">
-            <input type="hidden" name="action" value="product">
-            <input type="hidden" name="id" value="<c:out value='${retryProduct ? param.id : (empty product ? 0 : product.id)}'/>">
+            <input type="hidden" name="action" value="${editingProduct ? 'updateProduct' : 'addProduct'}">
+            <c:if test="${editingProduct}">
+                <input type="hidden" name="id" value="<c:out value='${retryProduct ? param.id : product.id}'/>">
+            </c:if>
             <label for="product-name">Namn</label>
             <input id="product-name" name="name" maxlength="50" value="<c:out value='${retryProduct ? param.name : product.name}'/>" required>
             <label for="product-cost">Pris (kr)</label>

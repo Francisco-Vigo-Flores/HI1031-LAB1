@@ -2,6 +2,7 @@ package Data.Dao;
 import Application.Entities.CartProduct;
 import Application.Entities.Product;
 import Data.ShopDB;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,7 +17,8 @@ public class CartDAO {
     public boolean addCart(int userID) {
         String addCartQuery = "INSERT INTO Cart (UserID) VALUES (?)";
 
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(addCartQuery)) {
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(addCartQuery)) {
             stmt.setInt(1, userID);
             if(stmt.executeUpdate() == 1) {
                 System.out.println("Cart added successfully");
@@ -36,7 +38,8 @@ public class CartDAO {
                 "ON CONFLICT (CartID, ProductID) DO UPDATE SET Quantity = CartProducts.Quantity+EXCLUDED.Quantity " +
                 "WHERE CartProducts.Quantity <= " +
                 "(SELECT Quantity FROM Product WHERE ID = EXCLUDED.ProductID) - EXCLUDED.Quantity";
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(addSameProductsQuery)) {
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(addSameProductsQuery)) {
             stmt.setInt(1, cartID);
             stmt.setInt(2, quantity);
             stmt.setInt(3, productID);
@@ -63,7 +66,8 @@ public class CartDAO {
         String deleteEmptyItemQuery = "DELETE FROM CartProducts " +
                 "WHERE CartID = ? AND ProductID = ? AND Quantity = 0";
 
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(removeProductQuery)) {
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(removeProductQuery)) {
             stmt.setInt(1, quantity);
             stmt.setInt(2, cartID);
             stmt.setInt(3, productID);
@@ -72,7 +76,7 @@ public class CartDAO {
                 return false;
             }
 
-            try (PreparedStatement deleteStmt = this.shopDB.getConnection().prepareStatement(deleteEmptyItemQuery)) {
+            try (PreparedStatement deleteStmt = connection.prepareStatement(deleteEmptyItemQuery)) {
                 deleteStmt.setInt(1, cartID);
                 deleteStmt.setInt(2, productID);
                 deleteStmt.executeUpdate();
@@ -91,11 +95,13 @@ public class CartDAO {
 
     public boolean clearCart(int cartID) {
         String clearCartQuery = "DELETE FROM CartProducts WHERE CartID = ?";
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(clearCartQuery)) {
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(clearCartQuery)) {
             stmt.setInt(1, cartID);
             stmt.executeUpdate();
             return true;
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             ShopDB.printSqlErrors(e);
             System.out.println("Could not clear cart");
         }
@@ -104,7 +110,8 @@ public class CartDAO {
 
     public int getCartIdByUserId(int userID) {
         String getCartQuery = "SELECT ID FROM Cart WHERE UserID = ?";
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(getCartQuery)) {
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(getCartQuery)) {
             stmt.setInt(1, userID);
 
             ResultSet result = stmt.executeQuery();
@@ -113,7 +120,8 @@ public class CartDAO {
                 return -1;
             }
             return result.getInt("ID");
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             ShopDB.printSqlErrors(e);
             System.out.println("Could not find cart for user");
         }
@@ -127,7 +135,8 @@ public class CartDAO {
                 "FROM Product as p JOIN CartProducts as cp " +
                 "ON cp.ProductID = p.ID WHERE cp.CartID = ?";
 
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(getCartProductsQuery)) {
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(getCartProductsQuery)) {
             stmt.setInt(1, cartID);
             ResultSet queryResults = stmt.executeQuery();
             while (queryResults.next()) {

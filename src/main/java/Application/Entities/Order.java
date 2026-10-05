@@ -22,7 +22,6 @@ public class Order {
         this.products = new ArrayList<>(products);
     }
 
-
     public int getId() {
         return id;
     }

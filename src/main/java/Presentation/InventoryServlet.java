@@ -68,8 +68,12 @@ public class InventoryServlet extends HttpServlet {
         try {
             if ("category".equals(action)) {
                 saved = shopService.saveCategory(request.getParameter("oldName"), request.getParameter("name"));
-            } else if ("product".equals(action)) {
-                saved = shopService.saveProduct(Integer.parseInt(request.getParameter("id")),
+            } else if ("addProduct".equals(action)) {
+                saved = shopService.addProduct(request.getParameter("name"),
+                        Double.parseDouble(request.getParameter("cost")), request.getParameter("category"),
+                        request.getParameter("desc"), Integer.parseInt(request.getParameter("quantity")));
+            } else if ("updateProduct".equals(action)) {
+                saved = shopService.updateProduct(Integer.parseInt(request.getParameter("id")),
                         request.getParameter("name"), Double.parseDouble(request.getParameter("cost")),
                         request.getParameter("category"), request.getParameter("desc"),
                         Integer.parseInt(request.getParameter("quantity")));

@@ -4,6 +4,7 @@ import Application.Entities.User;
 import Application.Entities.UserType;
 import Data.ShopDB;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,7 +24,8 @@ public class UserDAO {
         String addUserQuery =
                 "INSERT INTO \"User\" (NAME, USERNAME, PASSWORD, TYPE) VALUES (?, ?, ?, ?) RETURNING ID";
 
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(addUserQuery)){
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(addUserQuery)){
             stmt.setString(1, name);
             stmt.setString(2, username);
             stmt.setString(3, password);
@@ -44,7 +46,8 @@ public class UserDAO {
 
     public boolean updateUser(int userID, String name, UserType type) {
         String updateUserQuery = "UPDATE \"User\" SET NAME = ?, TYPE = ? WHERE ID = ?";
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(updateUserQuery)) {
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(updateUserQuery)) {
             stmt.setString(1, name);
             stmt.setObject(2, type.name(), java.sql.Types.OTHER);
             stmt.setInt(3, userID);
@@ -62,9 +65,10 @@ public class UserDAO {
                 "(SELECT ID FROM Cart WHERE UserID = ?)";
         String deleteCart = "DELETE FROM Cart WHERE UserID = ?";
         String deleteUser = "DELETE FROM \"User\" WHERE ID = ?";
-        try (PreparedStatement productsStmt = this.shopDB.getConnection().prepareStatement(deleteProducts);
-             PreparedStatement cartStmt = this.shopDB.getConnection().prepareStatement(deleteCart);
-             PreparedStatement userStmt = this.shopDB.getConnection().prepareStatement(deleteUser)) {
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement productsStmt = connection.prepareStatement(deleteProducts);
+             PreparedStatement cartStmt = connection.prepareStatement(deleteCart);
+             PreparedStatement userStmt = connection.prepareStatement(deleteUser)) {
             productsStmt.setInt(1, userID);
             productsStmt.executeUpdate();
             cartStmt.setInt(1, userID);
@@ -83,7 +87,8 @@ public class UserDAO {
         String singleUserQuery =
                 "SELECT usr.ID, usr.NAME, usr.USERNAME, usr.TYPE FROM \"User\" as usr WHERE usr.ID = ?";
 
-        try(PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(singleUserQuery)) {
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(singleUserQuery)) {
             stmt.setObject(1, userID);
             ResultSet queryResults = stmt.executeQuery();
 
@@ -105,7 +110,8 @@ public class UserDAO {
         String allUsersQuery =
                 "SELECT usr.ID, usr.NAME, usr.USERNAME, usr.TYPE FROM \"User\" as usr";
 
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(allUsersQuery)){
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(allUsersQuery)){
             ResultSet queryResults = stmt.executeQuery();
             while(queryResults.next()) {
                 users.add(mapUser(queryResults));
@@ -123,7 +129,8 @@ public class UserDAO {
         String findUserQuery = "SELECT usr.ID, usr.USERNAME, usr.PASSWORD FROM \"User\" AS usr " +
                 "WHERE usr.USERNAME = ? AND usr.PASSWORD = ?";
 
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(findUserQuery)) {
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(findUserQuery)) {
             stmt.setString(1, username);
             stmt.setString(2, password);
             ResultSet queryResults = stmt.executeQuery();
@@ -141,7 +148,8 @@ public class UserDAO {
     public boolean usernameTaken(String username) {
         String usernameTakenQuery = "SELECT usr.USERNAME FROM \"User\" AS usr WHERE usr.USERNAME = ?";
 
-        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(usernameTakenQuery)) {
+        try (Connection connection = this.shopDB.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(usernameTakenQuery)) {
             stmt.setString(1,username);
             ResultSet queryResults = stmt.executeQuery();
             return (queryResults.next());
@@ -152,7 +160,7 @@ public class UserDAO {
         }
         return false;
     }
-    private User mapUser(ResultSet queryResult) throws SQLException {
+    static protected User mapUser(ResultSet queryResult) throws SQLException {
         return new User(
                 queryResult.getInt("ID"),
                 UserType.valueOf(queryResult.getString("TYPE")),

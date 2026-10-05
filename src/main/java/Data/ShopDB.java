@@ -11,16 +11,10 @@ public class ShopDB {
     private final String databaseUser;
     private final String databasePassword;
 
-    public ShopDB(String databaseURL, String databaseUser, String databasePassword) {
-        this.databaseURL = databaseURL;
-        this.databaseUser = databaseUser;
-        this.databasePassword = databasePassword;
-    }
-
     public ShopDB() {
-        this.databaseURL = "jdbc:postgresql://localhost:5432/postgres";
+        this.databaseURL = "jdbc:postgresql://localhost:5432/HI1031-LAB1";
         this.databaseUser = "postgres";
-        this.databasePassword = "0303";
+        this.databasePassword = "password";
     }
 
     public Connection getConnection() {
@@ -45,5 +39,4 @@ public class ShopDB {
         System.out.println("Error msg: " + exception.getMessage());
         System.out.println("Error cause: " + exception.getCause());
     }
-
 }
