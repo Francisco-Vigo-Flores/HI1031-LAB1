@@ -80,6 +80,10 @@ public class ShopService {
         return productDAO.getProduct(productID);
     }
 
+    public boolean updateStock(int productID, int quantity) {
+        return productDAO.updateStock(productID, quantity);
+    }
+
     private int getOrCreateCartId(int userID) {
         int cartID = cartDAO.getCartIdByUserId(userID);
         if (cartID == -1) {

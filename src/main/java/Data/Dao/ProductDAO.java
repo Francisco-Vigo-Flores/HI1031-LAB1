@@ -94,6 +94,21 @@ public class ProductDAO {
         return removeProduct(productID,1);
     }
 
+    public boolean updateStock(int productID, int quantity) {
+        String updateStockQuery = "UPDATE Product SET Quantity = ? WHERE ID = ?";
+
+        try (PreparedStatement stmt = this.shopDB.getConnection().prepareStatement(updateStockQuery)) {
+            stmt.setInt(1, quantity);
+            stmt.setInt(2, productID);
+            return stmt.executeUpdate() == 1;
+        }
+        catch (SQLException e) {
+            ShopDB.printSqlErrors(e);
+            System.out.println("Could not update stock for product " + productID);
+        }
+        return false;
+    }
+
     private Product mapProduct(ResultSet queryResult) throws SQLException {
         return new Product(
                 queryResult.getInt("ID"),
