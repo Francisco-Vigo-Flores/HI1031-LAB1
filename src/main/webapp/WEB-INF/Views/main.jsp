@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.List,Application.Entities.Product" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -15,70 +15,39 @@
         <div><p class="eyebrow">Butiken</p><h1>Våra produkter</h1></div>
         <p>Hitta något du gillar.</p>
     </div>
-    <% List<Product> products = (List<Product>) request.getAttribute("products"); %>
-    <% if (products != null && products.isEmpty()) { %>
-        <div class="empty-state"><h2>Inga produkter ännu</h2><p>Kom tillbaka lite senare.</p></div>
-    <% } %>
-    <p id="purchase-status" role="status" aria-live="polite"></p>
+    <c:choose>
+        <c:when test="${products == null}">
+            <p class="notice error" role="alert">Produkterna kunde inte hämtas. Försök igen senare.</p>
+        </c:when>
+        <c:when test="${empty products}">
+            <div class="empty-state"><h2>Inga produkter ännu</h2><p>Kom tillbaka lite senare.</p></div>
+        </c:when>
+    </c:choose>
     <div class="product-grid">
-    <% if (products != null) { for (Product product : products) { %>
-        <article class="product-card">
-            <div class="product-topline">
-                <span class="category"><%= product.getCategory() == null ? "" : product.getCategory().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") %></span>
-            </div>
-            <h2><%= product.getName() == null ? "" : product.getName().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") %></h2>
-            <div class="product-bottom">
-                <p class="price"><%= product.getCost() %> kr</p>
-                <% if (currentUser != null) { %>
-                <form method="post" action="${pageContext.request.contextPath}/cart">
-                    <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
-                    <input type="hidden" name="productId" value="<%= product.getId() %>">
-                    <button type="submit">Köp</button>
-                </form>
-                <% } else { %><a class="button-link" href="${pageContext.request.contextPath}/login">Logga in för att köpa</a><% } %>
-            </div>
-        </article>
-    <% } } %>
+        <c:forEach var="product" items="${products}">
+            <article class="product-card">
+                <div class="product-topline">
+                    <span class="category"><c:out value="${product.category}"/></span>
+                </div>
+                <h2><c:out value="${product.name}"/></h2>
+                <div class="product-bottom">
+                    <p class="price">${product.cost} kr</p>
+                    <c:choose>
+                        <c:when test="${loggedIn}">
+                            <form method="post" action="${pageContext.request.contextPath}/cart">
+                                <input type="hidden" name="csrfToken" value="${csrfToken}">
+                                <input type="hidden" name="productId" value="${product.id}">
+                                <button type="submit">Lägg i varukorg</button>
+                            </form>
+                        </c:when>
+                        <c:otherwise>
+                            <a class="button-link" href="${pageContext.request.contextPath}/login">Logga in för att handla</a>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </article>
+        </c:forEach>
     </div>
 </main>
-<script>
-    document.querySelectorAll('.product-card form').forEach(form => {
-        form.addEventListener('submit', async event => {
-            event.preventDefault();
-            const button = form.querySelector('button');
-            if (button.disabled) return;
-            const card = form.closest('.product-card');
-            const status = document.getElementById('purchase-status');
-            button.disabled = true;
-            button.textContent = 'Lägger till…';
-            card.classList.remove('purchase-added');
-            try {
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    headers: { 'X-Requested-With': 'fetch' },
-                    body: new URLSearchParams(new FormData(form))
-                });
-                if (response.status === 401) {
-                    window.location.href = '${pageContext.request.contextPath}/login';
-                    return;
-                }
-                if (!response.ok) throw new Error('Purchase failed');
-                document.getElementById('cart-count').textContent = response.headers.get('X-Cart-Count');
-                card.classList.add('purchase-added');
-                button.textContent = 'Tillagd ✓';
-                status.textContent = card.querySelector('h2').textContent + ' har lagts i varukorgen.';
-            } catch (error) {
-                button.textContent = 'Försök igen';
-                status.textContent = 'Kunde inte lägga till varan. Försök igen.';
-            } finally {
-                setTimeout(() => {
-                    card.classList.remove('purchase-added');
-                    button.textContent = 'Köp';
-                    button.disabled = false;
-                }, 1200);
-            }
-        });
-    });
-</script>
 </body>
 </html>
