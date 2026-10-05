@@ -11,7 +11,7 @@ found in src/main/resources.
 Add a new Run Configuration with Tomcat Server, local.
 Add the build artifact under deployment and it should run.
 
-Note: build artifact is named "HI1031-LAB1:war exploded", rename it to webbshop if you want. 
+Note: build artifact is named "HI1031-LAB1:war exploded", rename it to webbshop if you want (we did so). 
 
 If you do all the above it should look so:
 ![img.png](docs/img.png)
