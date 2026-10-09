@@ -1,6 +1,7 @@
 package Application;
 
 import Application.Entities.*;
+import Application.Dto.*;
 import Data.Dao.CartDAO;
 import Data.Dao.OrderDAO;
 import Data.Dao.ProductDAO;
@@ -21,12 +22,12 @@ public class ShopService {
         this.orderDAO = new OrderDAO();
     }
 
-    public User login(String username, String password) {
+    public UserDTO login(String username, String password) {
         int userID = userDAO.userExists(username,password);
         if(userID==-1) {
             return null;
         }
-        return userDAO.getUser(userID);
+        return toUserDTO(userDAO.getUser(userID));
     }
 
     public boolean register(String username, String name, String password) {
@@ -51,12 +52,12 @@ public class ShopService {
         return cartDAO.addCart(userID);
     }
 
-    public User getUser(int userID) {
-        return userDAO.getUser(userID);
+    public UserDTO getUser(int userID) {
+        return toUserDTO(userDAO.getUser(userID));
     }
 
-    public List<User> getAllUsers() {
-        return userDAO.getAllUsers();
+    public List<UserDTO> getAllUsers() {
+        return toUserDTOList(userDAO.getAllUsers());
     }
 
     public boolean updateUser(int userID, String name, UserType type) {
@@ -70,12 +71,12 @@ public class ShopService {
         return userDAO.deleteUser(userID);
     }
 
-    public List<Product> getAllProducts() {
-        return productDAO.getAllProducts();
+    public List<ProductDTO> getAllProducts() {
+        return toProductDTOList(productDAO.getAllProducts());
     }
 
-    public Product getProduct(int productID) {
-        return productDAO.getProduct(productID);
+    public ProductDTO getProduct(int productID) {
+        return toProductDTO(productDAO.getProduct(productID));
     }
 
     public boolean updateStock(int productID, int quantity) {
@@ -132,7 +133,7 @@ public class ShopService {
     }
 
     public boolean addToCart(int userID, int productID, int quantity) {
-        Product product = getProduct(productID);
+        Product product = productDAO.getProduct(productID);
         if (product == null || quantity <= 0 || product.getQuantity() < quantity) {
             return false;
         }
@@ -150,7 +151,11 @@ public class ShopService {
         return cartDAO.clearCart(cartID);
     }
 
-    public Cart getCart(int userID) {
+    public CartDTO getCart(int userID) {
+        return toCartDTO(loadCart(userID));
+    }
+
+    private Cart loadCart(int userID) {
         int cartID = getOrCreateCartId(userID);
         ArrayList<CartProduct> products = cartDAO.getCartProducts(cartID);
         return new Cart(products);
@@ -158,7 +163,7 @@ public class ShopService {
 
     public int placeOrder(int userID) {
         User user = userDAO.getUser(userID);
-        Cart cart = getCart(userID);
+        Cart cart = loadCart(userID);
         if (cart.getProducts().isEmpty()) {
             return -1;
         }
@@ -169,19 +174,94 @@ public class ShopService {
         return orderId;
     }
 
-    public ArrayList<CartProduct> getOrderProducts(int orderID) {
-        return orderDAO.getOrderProducts(orderID);
+    public List<CartProductDTO> getOrderProducts(int orderID) {
+        return toCartProductDTOList(orderDAO.getOrderProducts(orderID));
     }
 
     public boolean completeOrder(int orderID) {
         return orderDAO.completeOrder(orderID);
     }
 
-    public ArrayList<Order> getOrdersByUserId(int userID) {
-        return orderDAO.getOrdersByUserId(userID);
+    public List<OrderDTO> getOrdersByUserId(int userID) {
+        return toOrderDTOList(orderDAO.getOrdersByUserId(userID));
     }
 
-    public ArrayList<Order> getOrders() {
-        return orderDAO.getOrders();
+    public List<OrderDTO> getOrders() {
+        return toOrderDTOList(orderDAO.getOrders());
+    }
+
+    private UserDTO toUserDTO(User user) {
+        if (user == null) {
+            return null;
+        }
+        return new UserDTO(user.getId(), user.getType(), user.getName(), user.getUsername());
+    }
+
+    private ProductDTO toProductDTO(Product product) {
+        if (product == null) {
+            return null;
+        }
+        return new ProductDTO(product.getId(), product.getName(), product.getCost(),
+                product.getCategory(), product.getDesc(), product.getQuantity());
+    }
+
+    private CartProductDTO toCartProductDTO(CartProduct item) {
+        return new CartProductDTO(item.getAmountInCart(), toProductDTO(item.getProduct()),
+                item.getProductCost());
+    }
+
+    private CartDTO toCartDTO(Cart cart) {
+        return new CartDTO(toCartProductDTOList(cart.getProducts()),
+                cart.getProductCount(), cart.calculateTotalCost());
+    }
+
+    private OrderDTO toOrderDTO(Order order) {
+        return new OrderDTO(order.getId(), order.isComplete(), toUserDTO(order.getUser()),
+                toCartProductDTOList(order.getProducts()));
+    }
+
+    // Preserve the DAOs' distinction between load failure (null) and no results.
+    private List<UserDTO> toUserDTOList(List<User> users) {
+        if (users == null) {
+            return null;
+        }
+        List<UserDTO> dtos = new ArrayList<>();
+        for (User user : users) {
+            dtos.add(toUserDTO(user));
+        }
+        return dtos;
+    }
+
+    private List<ProductDTO> toProductDTOList(List<Product> products) {
+        if (products == null) {
+            return null;
+        }
+        List<ProductDTO> dtos = new ArrayList<>();
+        for (Product product : products) {
+            dtos.add(toProductDTO(product));
+        }
+        return dtos;
+    }
+
+    private List<CartProductDTO> toCartProductDTOList(List<CartProduct> items) {
+        if (items == null) {
+            return null;
+        }
+        List<CartProductDTO> dtos = new ArrayList<>();
+        for (CartProduct item : items) {
+            dtos.add(toCartProductDTO(item));
+        }
+        return dtos;
+    }
+
+    private List<OrderDTO> toOrderDTOList(List<Order> orders) {
+        if (orders == null) {
+            return null;
+        }
+        List<OrderDTO> dtos = new ArrayList<>();
+        for (Order order : orders) {
+            dtos.add(toOrderDTO(order));
+        }
+        return dtos;
     }
 }

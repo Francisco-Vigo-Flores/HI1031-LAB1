@@ -1,4 +1,4 @@
-package Application.Entities;
+package Application;
 
 public enum UserType {
     Admin, InventoryManager, Customer;

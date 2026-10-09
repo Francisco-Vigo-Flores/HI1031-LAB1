@@ -1,7 +1,7 @@
 package Presentation;
-import Application.Entities.Product;
-import Application.Entities.Cart;
-import Application.Entities.User;
+import Application.Dto.ProductDTO;
+import Application.Dto.CartDTO;
+import Application.Dto.UserDTO;
 import Application.ShopService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,21 +17,21 @@ public class MainServlet extends HttpServlet {
     ShopService shopService = new ShopService();
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Product> products = this.shopService.getAllProducts();
+        List<ProductDTO> products = this.shopService.getAllProducts();
         request.setAttribute("products", products);
         HttpSession session = request.getSession(false);
-        User user;
+        UserDTO user;
         if (session == null) {
             user = null;
         }
         else {
-            user = (User) session.getAttribute("user");
+            user = (UserDTO) session.getAttribute("user");
         }
         request.setAttribute("currentUser", user);
         request.setAttribute("currentPage", "/products");
         request.setAttribute("cartCount", 0);
         if (user != null) {
-            Cart cart = shopService.getCart(user.getId());
+            CartDTO cart = shopService.getCart(user.getId());
             request.setAttribute("cart", cart);
             request.setAttribute("cartCount", cart.getProductCount());
         }

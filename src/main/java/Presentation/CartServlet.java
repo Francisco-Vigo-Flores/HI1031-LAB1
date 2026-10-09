@@ -1,7 +1,7 @@
 package Presentation;
 
-import Application.Entities.Cart;
-import Application.Entities.User;
+import Application.Dto.CartDTO;
+import Application.Dto.UserDTO;
 import Application.ShopService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -19,23 +19,23 @@ public class CartServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
-        User user = session == null ? null : (User) session.getAttribute("user");
+        UserDTO user = session == null ? null : (UserDTO) session.getAttribute("user");
         if (user == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-        Cart cart = shopService.getCart(user.getId());
+        CartDTO cart = shopService.getCart(user.getId());
         request.setAttribute("currentPage", "/cart");
         request.setAttribute("cartCount", cart.getProductCount());
         request.setAttribute("cartItems", cart.getProducts());
-        request.setAttribute("cartTotal", cart.calculateTotalCost());
+        request.setAttribute("cartTotal", cart.getTotalCost());
         request.getRequestDispatcher("/WEB-INF/Views/cart.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession(false);
-        User user = session == null ? null : (User) session.getAttribute("user");
+        UserDTO user = session == null ? null : (UserDTO) session.getAttribute("user");
         if (user == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;

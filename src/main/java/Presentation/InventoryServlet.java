@@ -1,9 +1,9 @@
 package Presentation;
 
 import Application.ShopService;
-import Application.Entities.Product;
-import Application.Entities.User;
-import Application.Entities.UserType;
+import Application.Dto.ProductDTO;
+import Application.Dto.UserDTO;
+import Application.UserType;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -19,12 +19,12 @@ public class InventoryServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User user = requireStaff(request, response);
+        UserDTO user = requireStaff(request, response);
         if (user == null) return;
         String id = request.getParameter("productId");
         if (id != null && request.getAttribute("error") == null) {
             try {
-                Product product = shopService.getProduct(Integer.parseInt(id));
+                ProductDTO product = shopService.getProduct(Integer.parseInt(id));
                 if (product == null) {
                     response.sendRedirect(request.getContextPath() + "/inventory");
                     return;
@@ -44,7 +44,7 @@ public class InventoryServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User user = requireStaff(request, response);
+        UserDTO user = requireStaff(request, response);
         if (user == null) return;
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
@@ -77,9 +77,9 @@ public class InventoryServlet extends HttpServlet {
         doGet(request, response);
     }
 
-    private User requireStaff(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private UserDTO requireStaff(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession(false);
-        User user = session == null ? null : (User) session.getAttribute("user");
+        UserDTO user = session == null ? null : (UserDTO) session.getAttribute("user");
         if (user != null && (user.getType() == UserType.Admin || user.getType() == UserType.InventoryManager)) {
             return user;
         }

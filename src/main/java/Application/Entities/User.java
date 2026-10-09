@@ -1,6 +1,8 @@
 package Application.Entities;
 
 
+import Application.UserType;
+
 public class User {
     private int id;
     private UserType type;

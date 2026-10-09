@@ -1,6 +1,6 @@
 package Presentation;
 
-import Application.Entities.User;
+import Application.Dto.UserDTO;
 import Application.ShopService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,7 +21,7 @@ public class LoginServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         String username = req.getParameter("username");
         String password = req.getParameter("password");
-        User user = shopService.login(username, password);
+        UserDTO user = shopService.login(username, password);
         if (user == null) {
             req.setAttribute("error", "Fel användarnamn eller lösenord.");
             req.getRequestDispatcher("/WEB-INF/Views/login.jsp").forward(req, resp);

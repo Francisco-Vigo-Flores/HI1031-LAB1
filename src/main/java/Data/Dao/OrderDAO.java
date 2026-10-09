@@ -1,6 +1,7 @@
 package Data.Dao;
 
 import Application.Entities.*;
+import Application.UserType;
 import Data.ShopDB;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -1,7 +1,7 @@
 package Presentation;
 
-import Application.Entities.User;
-import Application.Entities.UserType;
+import Application.Dto.UserDTO;
+import Application.UserType;
 import Application.ShopService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -19,7 +19,7 @@ public class OrdersServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
-        User user = session == null ? null : (User) session.getAttribute("user");
+        UserDTO user = session == null ? null : (UserDTO) session.getAttribute("user");
         if (user == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
@@ -34,7 +34,7 @@ public class OrdersServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession(false);
-        User user = session == null ? null : (User) session.getAttribute("user");
+        UserDTO user = session == null ? null : (UserDTO) session.getAttribute("user");
         if (user == null) {
             response.sendError(401);
             return;
