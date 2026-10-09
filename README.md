@@ -1,3 +1,6 @@
+LAB1 in Distributed Systems course (HI1031) by Francisco Vigo Flores and Denis Draci.
+
+
 To run one needs to install the following prerequisites:
 PostgreSQL, Apache Tomcat, IntelliJ Ultimate (for this guide)
 
